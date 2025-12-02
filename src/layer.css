@@ -10,16 +10,29 @@
     margin-right: 2px;
 }
 
-.layer .buttons { 
+.layer .buttons {
     display: grid;
-    grid-template-rows: 2.25fr 1fr 1fr;
+    grid-template-rows: auto 2.25fr 1fr 1fr;
 }
 
-.layer .cbs {    
-    display: grid;    
-    grid-template-columns: repeat(3, 1fr); 
+.layer .transport-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
     width: 100%;
-    height: 100%;    
+    margin-bottom: 2px;
+}
+
+.layer .transport-controls .button {
+    font-size: 14px;
+    padding-top: 3px;
+}
+
+.layer .cbs {
+    display: none;  /* 隱藏 Clear, B, S 按鈕 */
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    height: 100%;
 }
 
 .layer .master {
@@ -92,8 +105,8 @@
     border-color: #50504f;
 }
 
-.layer .crossfadergroup {       
-    display: grid;
+.layer .crossfadergroup {
+    display: none;  /* 隱藏 A, B 按鈕 */
     grid-template-columns: repeat(2, 1fr);
 }
 

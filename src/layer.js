@@ -34,6 +34,67 @@ function Layer(props) {
     /* Replace # with ((index+1) of Layer) */
     const select    = () => context.action('trigger', `/composition/layers/by-id/${props.id}/select`);
     const clear     = () => context.action('trigger', `/composition/layers/by-id/${props.id}/clear`);
+    const stop      = () => context.action('trigger', `/composition/layers/by-id/${props.id}/clear`);
+
+    // 找到當前 Layer 中正在播放的 Clip（connected）或第一個有 transport 的 Clip
+    const getTargetClip = () => {
+        // 優先找當前 layer 中正在連接/播放的 clip (connected)
+        const connectedClip = props.clips?.find(clip =>
+            clip.connected?.index >= 3 && clip.transport?.controls?.playdirection?.id
+        );
+
+        // 如果沒有正在播放的，找這個 layer 中被選中的 clip
+        const selectedClip = props.clips?.find(clip =>
+            clip.selected?.value === true && clip.transport?.controls?.playdirection?.id
+        );
+
+        // 如果都沒有，找第一個有 transport 的 clip
+        const firstClip = props.clips?.find(clip =>
+            clip.transport?.controls?.playdirection?.id
+        );
+
+        return connectedClip || selectedClip || firstClip;
+    };
+
+    // 播放功能
+    const play = () => {
+        const targetClip = getTargetClip();
+
+        if (targetClip && targetClip.transport?.controls?.playdirection) {
+            const playdirection = targetClip.transport.controls.playdirection;
+
+            if (playdirection.id && typeof playdirection.id === 'number') {
+                console.log('Playing clip direction:', playdirection.id, playdirection);
+                // 根據 options 判斷正確的播放索引: '>' = Forward
+                const forwardIndex = playdirection.options?.indexOf('>') ?? 2;
+                context.parameters.update_parameter(playdirection.id, forwardIndex);
+            } else {
+                console.warn('Invalid playdirection parameter:', playdirection);
+            }
+        } else {
+            console.warn('No clip with transport found in layer');
+        }
+    };
+
+    // 暫停功能
+    const pause = () => {
+        const targetClip = getTargetClip();
+
+        if (targetClip && targetClip.transport?.controls?.playdirection) {
+            const playdirection = targetClip.transport.controls.playdirection;
+
+            if (playdirection.id && typeof playdirection.id === 'number') {
+                console.log('Pausing clip direction:', playdirection.id, playdirection);
+                // 根據 options 判斷正確的暫停索引: '||' = Pause
+                const pauseIndex = playdirection.options?.indexOf('||') ?? 1;
+                context.parameters.update_parameter(playdirection.id, pauseIndex);
+            } else {
+                console.warn('Invalid playdirection parameter:', playdirection);
+            }
+        } else {
+            console.warn('No clip with transport found in layer');
+        }
+    };
 
     return (
         <ParameterMonitor.Single parameter={props.name} render={name => (
@@ -43,9 +104,14 @@ function Layer(props) {
                         name={name.value.replace(/#/g, props.index+1)}
                         options={menu_options}
                     >
-                        <div className="layer">       
+                        <div className="layer">
                             <div className="controls">
                                 <div className="buttons">
+                                    <div className="transport-controls">
+                                        <div className={`button off`} onMouseDown={play} title="Play">▶</div>
+                                        <div className={`button off`} onMouseDown={pause} title="Pause">⏸</div>
+                                        <div className={`button off`} onMouseDown={stop} title="Stop">⏹</div>
+                                    </div>
                                     <div className="cbs">
                                         <div className={`button off`} onMouseDown={clear}>Clear</div>
                                         <ParameterMonitor.Single parameter={props.bypassed} render={bypassed => (
@@ -112,7 +178,8 @@ Layer.propTypes = {
     ignorecolumntrigger: PropTypes.object.isRequired,
     dashboard: PropTypes.object.isRequired,
     audio: PropTypes.object,
-    video: PropTypes.object
+    video: PropTypes.object,
+    clips: PropTypes.array
 }
 
 export default Layer;

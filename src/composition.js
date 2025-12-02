@@ -132,6 +132,7 @@ function Composition() {
                         audio={layer.audio}
                         video={layer.video}
                         selected={layer.selected}
+                        clips={layer.clips}
                     />
                 )
 
