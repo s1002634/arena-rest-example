@@ -17,6 +17,7 @@ body {
 
 
 .crossfader {
+    display: none;  /* 隱藏 crossfader 區塊 */
     width: 33%;
 }
 
@@ -152,6 +153,7 @@ body {
 /**~~~~~~DECKS~~~~~~~**/
 
 .decks {
+    display: none;  /* 隱藏 decks 區塊 */
     height: 30px;
     margin-left: 185px;
 }
@@ -209,6 +211,22 @@ body {
 
 #controls > div + div {
     margin-left: 5px;
+}
+
+#composition_properties {
+    display: none;  /* 隱藏 composition_properties 區塊 */
+}
+
+#layer_properties {
+    display: none;  /* 隱藏 layer_properties 區塊 */
+}
+
+#clip_properties {
+    display: none;  /* 隱藏 clip_properties 區塊 */
+}
+
+#browser {
+    display: none;  /* 隱藏 browser 區塊 */
 }
 
 

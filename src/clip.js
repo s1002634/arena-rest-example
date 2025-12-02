@@ -38,6 +38,11 @@ function Clip(props) {
         });
     };
 
+    // handle clear action with thumbnail cache busting
+    const handleClear = () => {
+        context.post(`/composition/clips/by-id/${props.id}/clear`);
+    };
+
     let menu_options = {
         'Beat Snap':                { param: props.beatsnap                                                             },
         'Transport':                { param: props.transporttype                                                        },
@@ -47,7 +52,7 @@ function Clip(props) {
         'Ignore Column Trigger':    { param: props.ignorecolumntrigger                                                  },
         'Load Thumbnail':           { action: () => setThumbnailPicker(true)                                            },
         'Revert Thumbnail':         { action: () => context.remove(`/composition/clips/by-id/${props.id}/thumbnail`)    },
-        'Clear':                    { action: () => context.post(`/composition/clips/by-id/${props.id}/clear`)          },
+        'Clear':                    { action: handleClear                                                                },
     };
 
     /* Add 'Resize' option to menu if clip has video track */
@@ -94,14 +99,16 @@ function Clip(props) {
                     <div className="clip" onDragOver={(event) => event.preventDefault()} onDrop={drop}>
                         {/* Connected has 5 possible states: "Empty", "Disconnected", "Previewing", "Connected", "Connected & previewing"*/}
                         <div className={`${connected.index >= 3 ? 'connected' : 'none'}`}>
-                            <img className="thumbnail"
-                                src={context.clip_url(props.id, props.thumbnail.last_update)}
-                                onMouseDown={() => connect(true)}
-                                onMouseUp={() => connect(false)}
-                                onMouseLeave={() => connect(false)}
-                                onDragStart={(event) => event.preventDefault()}
-                                alt={props.name.value}
-                            />
+                            <ParameterMonitor.Single parameter={props.thumbnail} render={thumbnail => (
+                                <img className="thumbnail"
+                                    src={context.clip_url(props.id, thumbnail.last_update)}
+                                    onMouseDown={() => connect(true)}
+                                    onMouseUp={() => connect(false)}
+                                    onMouseLeave={() => connect(false)}
+                                    onDragStart={(event) => event.preventDefault()}
+                                    alt={props.name.value}
+                                />
+                            )} />
                         </div>
                         <ParameterMonitor.Single parameter={props.selected} render={selected => (
                             <div className={`clip handle ${selected.value ? 'selected' : ''}`} onMouseDown={select}>
