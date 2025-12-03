@@ -10,6 +10,7 @@ body {
 
 /**~~~~~~COMPOSITION~~~~~~~**/
 .composition {
+    padding-top: 5px;
     
 }
 
@@ -23,14 +24,38 @@ body {
 
 /**~~~~~~LAYERS~~~~~~~**/
 
+.bottom-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #0a0a0a;
+}
+
+.global-transport-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    width: 150px;
+}
+
+.global-transport-controls .button {
+    font-size: 18px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .button
 {
-    text-align: center;        
+    text-align: center;
     padding-top: 5px;
     margin-right: 2px;
-    margin-bottom: 2px;    
+    margin-bottom: 2px;
 }
-.button 
+.button
 {
     background-color: #3a3a3a;
 }
@@ -121,6 +146,10 @@ body {
     border-radius: 0 0 4px 4px;
 }
 
+.composition-spacer {
+    display: none;
+}
+
 .clips {
     display: grid;
     flex-wrap: nowrap;
@@ -131,14 +160,20 @@ body {
 
 .column {
     width: 100px;
-    height: 20px;
+    height: 25px;
     text-align: center;
     margin-right: 5px;
-    margin-bottom: 5px;
+    margin-bottom: 0px;
     padding-top: 5px;
     background-color: #2A2A2A;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
+    box-sizing: border-box;
+    display: none;  /* 隱藏 column 列 */
+}
+
+.clips > span {
+    display: none;
 }
 
 .column:hover {
@@ -148,6 +183,68 @@ body {
 .column.connected {
     background-color: #80ffd2;
     color: #1b1b1b;
+}
+
+/**~~~~~~TEXT BLOCK EDITOR~~~~~~~**/
+
+.text-block-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 300px;
+}
+
+.text-block-editor .text-input {
+    width: 100%;
+    background-color: #e8e8e8;
+    color: #000000;
+    border: 1px solid #999999;
+    border-radius: 3px;
+    padding: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    resize: none;
+    height: 60px;
+    box-sizing: border-box;
+}
+
+.text-block-editor .text-input:focus {
+    outline: none;
+    border-color: #666666;
+}
+
+.text-block-editor .text-controls {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.text-block-editor .text-button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 3px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: normal;
+}
+
+.text-block-editor .text-button.clear {
+    background-color: #cccccc;
+    color: #000000;
+}
+
+.text-block-editor .text-button.clear:hover {
+    background-color: #b3b3b3;
+}
+
+.text-block-editor .text-button.submit {
+    background-color: #cccccc;
+    color: #000000;
+}
+
+.text-block-editor .text-button.submit:hover {
+    background-color: #b3b3b3;
 }
 
 /**~~~~~~DECKS~~~~~~~**/
@@ -227,6 +324,10 @@ body {
 
 #browser {
     display: none;  /* 隱藏 browser 區塊 */
+}
+
+#clip_transport {
+    display: none;  /* 隱藏 clip_transport 區塊 */
 }
 
 

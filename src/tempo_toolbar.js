@@ -2,7 +2,7 @@ import React from 'react';
 import Parameter from './parameter.js';
 import "./tempo_toolbar.css"
 
-function TempoToolbar({ tempocontroller }) {
+function TempoToolbar({ tempocontroller, audio }) {
     return (
         <div className="tempo_toolbar">
             <span>
@@ -11,6 +11,18 @@ function TempoToolbar({ tempocontroller }) {
                     parameter={tempocontroller.resync}
                 />
             </span>
+            {audio && audio.volume && (
+                <div className="master-volume">
+                    <span className="volume-label">Master Volume</span>
+                    <Parameter
+                        name="Master Volume"
+                        parameter={audio.volume}
+                        hidelabel="yes"
+                        key={audio.volume.id}
+                        id={audio.volume.id}
+                    />
+                </div>
+            )}
         </div>
     );
 }

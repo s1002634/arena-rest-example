@@ -74,7 +74,8 @@ function ResolumeProvider(props: ResolumeContextParameters) {
                     console.log('state update', message);
                     setComposition(message);
                 } else {
-                    console.log('state does not contain a composition', message);
+                    // 參數更新訊息在初始載入時是正常的，使用 debug 等級
+                    console.debug('state does not contain a composition', message);
                 }
             } else if (message.type === 'sources_update') {
                 console.log('sources update', message.value);

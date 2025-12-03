@@ -107,6 +107,11 @@ function Layer(props) {
                         <div className="layer">
                             <div className="controls">
                                 <div className="buttons">
+                                    <ParameterMonitor.Single parameter={props.selected} render={selected => (
+                                        <div className={`handle ${selected.value ? 'selected' : ''}`} onMouseDown={select}>
+                                            {name.value.replace(/#/g, props.index+1)}
+                                        </div>
+                                    )} />
                                     <div className="transport-controls">
                                         <div className={`button off`} onMouseDown={play} title="Play">▶</div>
                                         <div className={`button off`} onMouseDown={pause} title="Pause">⏸</div>
@@ -125,11 +130,6 @@ function Layer(props) {
                                         <div className="crossfadergroup">
                                             <div className={`button ${crossfadergroup.index === 1 ? 'on' : 'off'}`} onMouseDown={() => toggle_crossfadergroup(1)}>A</div>
                                             <div className={`button ${crossfadergroup.index === 2 ? 'on' : 'off'}`} onMouseDown={() => toggle_crossfadergroup(2)}>B</div>
-                                        </div>
-                                    )} />
-                                    <ParameterMonitor.Single parameter={props.selected} render={selected => (
-                                        <div className={`handle ${selected.value ? 'selected' : ''}`} onMouseDown={select}>
-                                            {name.value.replace(/#/g, props.index+1)}
                                         </div>
                                     )} />
                                 </div>

@@ -1,5 +1,4 @@
 import { ResolumeContext } from './resolume_provider'
-import ParameterMonitor from './parameter_monitor.js'
 import CrossFader from './crossfader.js'
 import TempoToolbar from './tempo_toolbar.js'
 import Column from './column.js'
@@ -9,7 +8,7 @@ import Clip from './clip.js'
 import Browser from './browser'
 import LayerGroup from './layer_group.js'
 import Properties from './properties.js'
-import React, { useContext } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 
 // composition effect controls and browser are rendered elseewhere
 const composition_root = document.getElementById('composition_properties');
@@ -20,6 +19,49 @@ const browser_root = document.getElementById('browser');
   */
 function Composition() {
     const context = useContext(ResolumeContext);
+    const [textBlockContent, setTextBlockContent] = useState('');
+
+    // 找到選中的 clip 和它的 text 參數
+    const getSelectedClipTextParam = () => {
+        for (const layer of context.composition.layers) {
+            for (const clip of layer.clips) {
+                if (clip.selected?.value === true) {
+                    console.log('Selected clip found:', clip.id);
+
+                    // 檢查 video.sourceparams 中是否有 text 參數
+                    // sourceparams 是一個物件，key 是參數名稱
+                    if (clip.video?.sourceparams) {
+                        for (const key in clip.video.sourceparams) {
+                            const param = clip.video.sourceparams[key];
+
+                            // 檢查是否為 ParamText 類型
+                            if (param.valuetype === 'ParamText') {
+                                console.log('sourceparams', key, 'id', param.id);
+                                console.log('sourceparams', key, 'valuetype', param.valuetype);
+                                console.log('sourceparams', key, 'value', param.value);
+
+                                // 自動填入 textarea
+                                setTextBlockContent(param.value || '');
+
+                                return { clipId: clip.id, textParam: param, paramName: key };
+                            }
+                        }
+                    }
+
+                    // 如果沒有 text 參數，清空 textarea
+                    console.warn('No text parameter found in selected clip video.sourceparams');
+                    setTextBlockContent('');
+                }
+            }
+        }
+        return null;
+    };
+
+    // 當 clip 選中狀態改變時，自動更新 textarea
+    useEffect(() => {
+        getSelectedClipTextParam();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [context.composition.layers]);
 
     const columns = context.composition.columns.map((column, index) =>
         <Column
@@ -206,37 +248,84 @@ function Composition() {
         tempocontroller = (
             <TempoToolbar
                 tempocontroller={context.composition.tempocontroller}
+                audio={context.composition.audio}
             />
         );
     }
 
-    const set_bypass    = bypassed => context.parameters.update_parameter(context.composition.bypassed.id, bypassed);
-    const select        = () => context.action('trigger', `/composition/selected`);
-    const disconnect    = () => {
-        context.action('trigger', `/composition/disconnect-all`, true);
-        context.action('trigger', '/composition/disconnect-all', false);
-    }
+    // 整體控制所有 layers 的 play/pause/stop
+    const playAll = () => {
+        context.composition.layers.forEach(layer => {
+            const targetClip = layer.clips?.find(clip =>
+                (clip.connected?.index >= 3 || clip.selected?.value === true) && clip.transport?.controls?.playdirection?.id
+            ) || layer.clips?.find(clip => clip.transport?.controls?.playdirection?.id);
+
+            if (targetClip && targetClip.transport?.controls?.playdirection) {
+                const playdirection = targetClip.transport.controls.playdirection;
+                if (playdirection.id && typeof playdirection.id === 'number') {
+                    const forwardIndex = playdirection.options?.indexOf('>') ?? 2;
+                    context.parameters.update_parameter(playdirection.id, forwardIndex);
+                }
+            }
+        });
+    };
+
+    const pauseAll = () => {
+        context.composition.layers.forEach(layer => {
+            const targetClip = layer.clips?.find(clip =>
+                (clip.connected?.index >= 3 || clip.selected?.value === true) && clip.transport?.controls?.playdirection?.id
+            ) || layer.clips?.find(clip => clip.transport?.controls?.playdirection?.id);
+
+            if (targetClip && targetClip.transport?.controls?.playdirection) {
+                const playdirection = targetClip.transport.controls.playdirection;
+                if (playdirection.id && typeof playdirection.id === 'number') {
+                    const pauseIndex = playdirection.options?.indexOf('||') ?? 1;
+                    context.parameters.update_parameter(playdirection.id, pauseIndex);
+                }
+            }
+        });
+    };
+
+    const stopAll = () => {
+        context.composition.layers.forEach(layer => {
+            context.action('trigger', `/composition/layers/by-id/${layer.id}/clear`);
+        });
+    };
+
+    // 文字區塊處理函數
+    const handleTextSubmit = () => {
+        const selectedClipData = getSelectedClipTextParam();
+
+        if (!selectedClipData) {
+            console.warn('No text block clip selected or no text parameter found');
+            alert('請先選擇一個包含 text 參數的 clip');
+            return;
+        }
+
+        if (textBlockContent.trim()) {
+            // 使用參數 ID 直接更新
+            console.log('Updating text parameter:', selectedClipData.textParam.id, 'with:', textBlockContent);
+            context.parameters.update_parameter(selectedClipData.textParam.id, textBlockContent);
+        }
+    };
+
+    const handleTextClear = () => {
+        const selectedClipData = getSelectedClipTextParam();
+
+        setTextBlockContent('');
+
+        if (selectedClipData) {
+            console.log('Clearing text parameter:', selectedClipData.textParam.id);
+            context.parameters.update_parameter(selectedClipData.textParam.id, '');
+        }
+    };
 
     return (
         <React.Fragment>
             <div className="composition">
                 <div className="composition_layers_and_clips">
                     <div className="composition_and_layers">
-                        {context.composition.selected &&
-                            <div className="composition">
-                                <ParameterMonitor.Single parameter={context.composition.selected} render={selected => (
-                                    <div className={`button ${selected.value ? 'on' : 'off'}`} onMouseDown={select}>
-                                        Composition
-                                    </div>
-                                )} />
-                                <div className="button off" onMouseDown={disconnect}>
-                                    X
-                                </div>
-                                <ParameterMonitor.Single parameter={context.composition.bypassed} render={bypassed => (
-                                    <div className={`button ${bypassed.value ? 'on' : 'off'}`} onMouseDown={() => set_bypass(!bypassed.value)}>B</div>
-                                )} />
-                            </div>
-                        }
+                        <div className="composition-spacer"></div>
 
                         {layers_and_groups}
                     </div>
@@ -245,11 +334,33 @@ function Composition() {
                         {clips}
                     </div>
                 </div>
+                <div className="bottom-controls">
+                    <div className="global-transport-controls">
+                        <div className="button off" onMouseDown={playAll} title="Play All">▶</div>
+                        <div className="button off" onMouseDown={pauseAll} title="Pause All">⏸</div>
+                        <div className="button off" onMouseDown={stopAll} title="Stop All">⏹</div>
+                    </div>
+
+                    <div className="text-block-editor">
+                        <textarea
+                            className="text-input"
+                            value={textBlockContent}
+                            onChange={(e) => setTextBlockContent(e.target.value)}
+                            placeholder="輸入文字..."
+                            rows={3}
+                        />
+                        <div className="text-controls">
+                            <button className="text-button clear" onClick={handleTextClear}>清除</button>
+                            <button className="text-button submit" onClick={handleTextSubmit}>送出</button>
+                        </div>
+                    </div>
+
+                    {tempocontroller}
+                </div>
                 <div className="decks">
                     {decks}
                 </div>
                 {crossfader}
-                {tempocontroller}
             </div>
             <Properties
                 name="Composition"

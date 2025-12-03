@@ -151,11 +151,10 @@ function ParamText(props) {
     return (
         <span className="parameter">
             <textarea
+                value={value !== undefined ? value : parameter.value}
                 onChange={(event) => debouncer.current.set_value(event.target.value)}
-                spellcheck="false"
-            >
-                {value || parameter.value}
-            </textarea>
+                spellCheck="false"
+            />
         </span>
     )
 }
