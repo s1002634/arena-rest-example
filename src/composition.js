@@ -335,10 +335,16 @@ function Composition() {
                     </div>
                 </div>
                 <div className="bottom-controls">
-                    <div className="global-transport-controls">
-                        <div className="button off" onMouseDown={playAll} title="Play All">▶</div>
-                        <div className="button off" onMouseDown={pauseAll} title="Pause All">⏸</div>
-                        <div className="button off" onMouseDown={stopAll} title="Stop All">⏹</div>
+                    <div className="left-controls">
+                        <div className="global-controls-section">
+                            <div className="control-label">整體控制</div>
+                            <div className="global-transport-controls">
+                                <div className="button off" onMouseDown={playAll} title="Play All">▶</div>
+                                <div className="button off" onMouseDown={pauseAll} title="Pause All">⏸</div>
+                                <div className="button off" onMouseDown={stopAll} title="Stop All">⏹</div>
+                            </div>
+                        </div>
+                        {tempocontroller}
                     </div>
 
                     <div className="text-block-editor">
@@ -350,12 +356,10 @@ function Composition() {
                             rows={3}
                         />
                         <div className="text-controls">
-                            <button className="text-button clear" onClick={handleTextClear}>清除</button>
-                            <button className="text-button submit" onClick={handleTextSubmit}>送出</button>
+                            <div className="button off" onClick={handleTextClear}>清除</div>
+                            <div className="button off" onClick={handleTextSubmit}>送出</div>
                         </div>
                     </div>
-
-                    {tempocontroller}
                 </div>
                 <div className="decks">
                     {decks}

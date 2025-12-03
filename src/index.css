@@ -10,7 +10,7 @@ body {
 
 /**~~~~~~COMPOSITION~~~~~~~**/
 .composition {
-    padding-top: 5px;
+    padding-top: 12px;
     
 }
 
@@ -29,19 +29,36 @@ body {
     align-items: center;
     gap: 20px;
     margin-top: 10px;
-    padding: 10px;
-    background-color: #0a0a0a;
+}
+
+.left-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.global-controls-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-label {
+    color: #ffffff;
+    font-size: 18px;
+    white-space: nowrap;
+    margin-left: 4px;
 }
 
 .global-transport-controls {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 5px;
-    width: 150px;
+    width: 200px;
 }
 
 .global-transport-controls .button {
-    font-size: 18px;
+    font-size: 22px;
     height: 50px;
     display: flex;
     align-items: center;
@@ -51,7 +68,7 @@ body {
 .button
 {
     text-align: center;
-    padding-top: 5px;
+    padding-bottom: 5px;
     margin-right: 2px;
     margin-bottom: 2px;
 }
@@ -84,9 +101,9 @@ body {
 
 .clip
 {
-    width: 100px;
-    margin-right: 5px;
-    margin-bottom: 5px;
+    width: 130px;
+    margin-right: 10px;
+    margin-bottom: 15px;
     background-color: #191818;    
 }
 
@@ -189,13 +206,14 @@ body {
 
 .text-block-editor {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 300px;
+    flex-direction: row;
+    gap: 10px;
+    align-items: stretch;
 }
 
 .text-block-editor .text-input {
-    width: 100%;
+    flex: 1;
+    min-width: 150px;
     background-color: #e8e8e8;
     color: #000000;
     border: 1px solid #999999;
@@ -204,7 +222,6 @@ body {
     font-family: Arial, sans-serif;
     font-size: 14px;
     resize: none;
-    height: 60px;
     box-sizing: border-box;
 }
 
@@ -215,36 +232,17 @@ body {
 
 .text-block-editor .text-controls {
     display: flex;
-    gap: 8px;
-    justify-content: flex-end;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: stretch;
 }
 
-.text-block-editor .text-button {
-    padding: 8px 20px;
-    border: none;
-    border-radius: 3px;
+.text-block-editor .text-controls .button {
+    flex: 1;
+    min-width: 60px;
     font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    font-weight: normal;
-}
-
-.text-block-editor .text-button.clear {
-    background-color: #cccccc;
-    color: #000000;
-}
-
-.text-block-editor .text-button.clear:hover {
-    background-color: #b3b3b3;
-}
-
-.text-block-editor .text-button.submit {
-    background-color: #cccccc;
-    color: #000000;
-}
-
-.text-block-editor .text-button.submit:hover {
-    background-color: #b3b3b3;
+    padding-top: 4px;
+    margin: 0;
 }
 
 /**~~~~~~DECKS~~~~~~~**/

@@ -1,6 +1,7 @@
 .layer
 {
-    width: 180px;
+    height: 150px;
+    width: 200px;
     margin-bottom: 5px;
 }
 
@@ -25,8 +26,8 @@
 }
 
 .layer .transport-controls .button {
-    font-size: 20px;
-    height: 40px;
+    font-size: 22px;
+    height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -44,6 +45,7 @@
     transform-origin: 55px 60px;
     height: 100px;
     width: 25px;
+    display: none;
 }
 
 .layer .master input[type='range'] {
@@ -114,7 +116,12 @@
     grid-template-columns: repeat(2, 1fr);
 }
 
-.layer .handle {    
+.layer .handle {
     margin-right: 2px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 5px;
 }
 

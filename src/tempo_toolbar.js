@@ -5,15 +5,16 @@ import "./tempo_toolbar.css"
 function TempoToolbar({ tempocontroller, audio }) {
     return (
         <div className="tempo_toolbar">
-            <span>
+            <div className="resync-section">
                 <Parameter
                     name="RESYNC"
                     parameter={tempocontroller.resync}
                 />
-            </span>
+            </div>
             {audio && audio.volume && (
                 <div className="master-volume">
-                    <span className="volume-label">Master Volume</span>
+                    <span className="volume-label">音量</span>
+
                     <Parameter
                         name="Master Volume"
                         parameter={audio.volume}
