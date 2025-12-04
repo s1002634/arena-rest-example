@@ -1,6 +1,5 @@
 import { ResolumeContext } from './resolume_provider'
 import CrossFader from './crossfader.js'
-import TempoToolbar from './tempo_toolbar.js'
 import Column from './column.js'
 import Deck from './deck.js'
 import Layer from './layer.js'
@@ -8,6 +7,7 @@ import Clip from './clip.js'
 import Browser from './browser'
 import LayerGroup from './layer_group.js'
 import Properties from './properties.js'
+import Parameter from './parameter.js'
 import React, { useContext, useState, useEffect } from 'react'
 
 // composition effect controls and browser are rendered elseewhere
@@ -20,9 +20,10 @@ const browser_root = document.getElementById('browser');
 function Composition() {
     const context = useContext(ResolumeContext);
     const [textBlockContent, setTextBlockContent] = useState('');
+    const [hasSourceParams, setHasSourceParams] = useState(false);
 
-    // 找到選中的 clip 和它的 text 參數
-    const getSelectedClipTextParam = () => {
+    // 找到選中的 clip 和它的 text 參數（用於更新 UI）
+    const getSelectedClipTextParam = (updateState = true) => {
         for (const layer of context.composition.layers) {
             for (const clip of layer.clips) {
                 if (clip.selected?.value === true) {
@@ -31,6 +32,7 @@ function Composition() {
                     // 檢查 video.sourceparams 中是否有 text 參數
                     // sourceparams 是一個物件，key 是參數名稱
                     if (clip.video?.sourceparams) {
+                        if (updateState) setHasSourceParams(true);
                         for (const key in clip.video.sourceparams) {
                             const param = clip.video.sourceparams[key];
 
@@ -40,20 +42,27 @@ function Composition() {
                                 console.log('sourceparams', key, 'valuetype', param.valuetype);
                                 console.log('sourceparams', key, 'value', param.value);
 
-                                // 自動填入 textarea
-                                setTextBlockContent(param.value || '');
+                                // 自動填入 textarea（僅在 updateState 為 true 時）
+                                if (updateState) {
+                                    setTextBlockContent(param.value || '');
+                                }
 
                                 return { clipId: clip.id, textParam: param, paramName: key };
                             }
                         }
+                    } else {
+                        if (updateState) setHasSourceParams(false);
                     }
 
                     // 如果沒有 text 參數，清空 textarea
                     console.warn('No text parameter found in selected clip video.sourceparams');
-                    setTextBlockContent('');
+                    if (updateState) {
+                        setTextBlockContent('');
+                    }
                 }
             }
         }
+        if (updateState) setHasSourceParams(false);
         return null;
     };
 
@@ -243,15 +252,6 @@ function Composition() {
         );
     };
 
-    let tempocontroller = null;
-    if (context.composition.tempocontroller.tempo) {
-        tempocontroller = (
-            <TempoToolbar
-                tempocontroller={context.composition.tempocontroller}
-                audio={context.composition.audio}
-            />
-        );
-    }
 
     // 整體控制所有 layers 的 play/pause/stop
     const playAll = () => {
@@ -294,7 +294,8 @@ function Composition() {
 
     // 文字區塊處理函數
     const handleTextSubmit = () => {
-        const selectedClipData = getSelectedClipTextParam();
+        // 取得參數 ID，但不更新 state（避免覆蓋使用者編輯的內容）
+        const selectedClipData = getSelectedClipTextParam(false);
 
         if (!selectedClipData) {
             console.warn('No text block clip selected or no text parameter found');
@@ -323,41 +324,73 @@ function Composition() {
     return (
         <React.Fragment>
             <div className="composition">
-                <div className="composition_layers_and_clips">
-                    <div className="composition_and_layers">
-                        <div className="composition-spacer"></div>
+                <div className="main-layout">
+                    <div className="composition_layers_and_clips">
+                        <div className="composition_and_layers">
+                            <div className="composition-spacer"></div>
 
-                        {layers_and_groups}
-                    </div>
-                    <div className="clips" style={s}>
-                        {columns}
-                        {clips}
-                    </div>
-                </div>
-                <div className="bottom-controls">
-                    <div className="left-controls">
-                        <div className="global-controls-section">
-                            <div className="control-label">整體控制</div>
-                            <div className="global-transport-controls">
-                                <div className="button off" onMouseDown={playAll} title="Play All">▶</div>
-                                <div className="button off" onMouseDown={pauseAll} title="Pause All">⏸</div>
-                                <div className="button off" onMouseDown={stopAll} title="Stop All">⏹</div>
-                            </div>
+                            {layers_and_groups}
                         </div>
-                        {tempocontroller}
+                        <div className="clips" style={s}>
+                            {columns}
+                            {clips}
+                        </div>
                     </div>
-
-                    <div className="text-block-editor">
-                        <textarea
-                            className="text-input"
-                            value={textBlockContent}
-                            onChange={(e) => setTextBlockContent(e.target.value)}
-                            placeholder="輸入文字..."
-                            rows={3}
-                        />
-                        <div className="text-controls">
-                            <div className="button off" onClick={handleTextClear}>清除</div>
-                            <div className="button off" onClick={handleTextSubmit}>送出</div>
+                    <div className="bottom-controls">
+                        <div className="left-controls">
+                            <div className="global-controls-section">
+                                <div className="control-label">整體控制</div>
+                                <div className="global-transport-controls">
+                                    <div className="button off" onMouseDown={playAll} title="Play All">
+                                        <div className="icon-play"></div>
+                                    </div>
+                                    <div className="button off" onMouseDown={pauseAll} title="Pause All">
+                                        <div className="icon-pause"></div>
+                                    </div>
+                                    <div className="button off" onMouseDown={stopAll} title="Stop All">
+                                        <div className="icon-stop"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {context.composition.tempocontroller.tempo && (
+                                <div className="resync-row">
+                                    <div className="resync-section">
+                                        <Parameter
+                                            name="RESYNC"
+                                            parameter={context.composition.tempocontroller.resync}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                            {context.composition.audio && context.composition.audio.volume && (
+                                <div className="volume-controls">
+                                    <div className="master-volume">
+                                        <span className="volume-label">音量</span>
+                                        <Parameter
+                                            name="Master Volume"
+                                            parameter={context.composition.audio.volume}
+                                            hidelabel="yes"
+                                            key={context.composition.audio.volume.id}
+                                            id={context.composition.audio.volume.id}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                            {hasSourceParams && (
+                                <div className="text-block-editor">
+                                    <textarea
+                                        className="text-input"
+                                        value={textBlockContent}
+                                        onChange={(e) => setTextBlockContent(e.target.value)}
+                                        placeholder="輸入文字..."
+                                        rows={3}
+                                    />
+                                    <div className="text-controls">
+                                        <div className="button off" onClick={handleTextClear}>清除</div>
+                                        <div className="button off" onClick={handleTextSubmit}>送出</div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

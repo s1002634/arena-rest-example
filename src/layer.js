@@ -113,9 +113,15 @@ function Layer(props) {
                                         </div>
                                     )} />
                                     <div className="transport-controls">
-                                        <div className={`button off`} onMouseDown={play} title="Play">▶</div>
-                                        <div className={`button off`} onMouseDown={pause} title="Pause">⏸</div>
-                                        <div className={`button off`} onMouseDown={stop} title="Stop">⏹</div>
+                                        <div className={`button off`} onMouseDown={play} title="Play">
+                                            <div className="icon-play"></div>
+                                        </div>
+                                        <div className={`button off`} onMouseDown={pause} title="Pause">
+                                            <div className="icon-pause"></div>
+                                        </div>
+                                        <div className={`button off`} onMouseDown={stop} title="Stop">
+                                            <div className="icon-stop"></div>
+                                        </div>
                                     </div>
                                     <div className="cbs">
                                         <div className={`button off`} onMouseDown={clear}>Clear</div>
