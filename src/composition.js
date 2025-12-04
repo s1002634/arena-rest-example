@@ -376,6 +376,9 @@ function Composition() {
                                     </div>
                                 </div>
                             )}
+                            <div className="columns-controls">
+                                {columns}
+                            </div>
                             {hasSourceParams && (
                                 <div className="text-block-editor">
                                     <textarea

@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(npm run build:*)",
-      "Bash(npm start)"
+      "Bash(npm start)",
+      "Bash(taskkill:*)",
+      "Bash(set BROWSER=none)",
+      "Bash(set HOST=0.0.0.0)",
+      "Bash(timeout /t 10)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []
