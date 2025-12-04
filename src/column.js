@@ -7,9 +7,26 @@ import ContextMenu from './context_menu.js';
 /**
   * Component rendering a column within the composition
   */
-function Column({ id, index, name, connected }) {
+function Column({ id, index, name, connected, limitToFirstThreeLayers }) {
     const context = useContext(ResolumeContext);
+
+    // 自訂連接功能：只觸發前三個 layer 的 clips
+    const connectLimitedLayers = (down) => {
+        // 只觸發前三個 layer
+        const layers = context.composition.layers.slice(0, 3);
+        layers.forEach((layer) => {
+            const clip = layer.clips[index];
+            if (clip && clip.id) {
+                context.action('trigger', `/composition/clips/by-id/${clip.id}/connect`, down);
+            }
+        });
+    };
+
+    // 預設的連接功能：觸發所有 layer
     const connect = down => context.action('trigger', `/composition/columns/by-id/${id}/connect`, down);
+
+    // 根據 prop 決定使用哪個函數
+    const handleConnect = limitToFirstThreeLayers ? connectLimitedLayers : connect;
 
     const menu_options = {
         'Add':                      { action: () => context.post('/composition/columns/add')            },
@@ -25,8 +42,8 @@ function Column({ id, index, name, connected }) {
                 >
                     <div
                         className={`column ${connected.value ? 'connected' : ''}`}
-                        onMouseDown={() => connect(true)}
-                        onMouseUp={() => connect(false)}
+                        onMouseDown={() => handleConnect(true)}
+                        onMouseUp={() => handleConnect(false)}
                     >
                         {name.value.replace(/#/g, index+1)}
                     </div>
@@ -44,6 +61,7 @@ Column.propTypes = {
     index: PropTypes.number.isRequired,
     name: PropTypes.object.isRequired,
     connected: PropTypes.object.isRequired,
+    limitToFirstThreeLayers: PropTypes.bool,
 }
 
 export default Column;

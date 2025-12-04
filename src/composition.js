@@ -82,6 +82,18 @@ function Composition() {
         />
     );
 
+    // 限制前三個 layer 的 columns (用於控制區)
+    const columnsLimitedToThreeLayers = context.composition.columns.map((column, index) =>
+        <Column
+            id={column.id}
+            key={column.id}
+            index={index}
+            name={column.name}
+            connected={column.connected}
+            limitToFirstThreeLayers={true}
+        />
+    );
+
     const { clips, layers_and_groups } = (() => {
         // first get an iterator on both the layers and groups
         const layer_iter = context.composition.layers[Symbol.iterator]();
@@ -377,7 +389,7 @@ function Composition() {
                                 </div>
                             )}
                             <div className="columns-controls">
-                                {columns}
+                                {columnsLimitedToThreeLayers}
                             </div>
                             {hasSourceParams && (
                                 <div className="text-block-editor">
