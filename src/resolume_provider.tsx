@@ -8,6 +8,8 @@ type ResolumeContextProperties = {
     action: (type: string, path: string, value: any) => void,
     post: (path: string, body: string) => void,
     remove: (path: string) => void,
+    fetch: (path: string, options: Record<string, unknown>) => Promise<Response>,
+    clip_url: (id: number, last_update: string) => string,
     effects: IEffects,
     sources: ISources,
 };

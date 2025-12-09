@@ -23,7 +23,7 @@ function Clip(props) {
     const [ thumbnailPicker, setThumbnailPicker ] = useState(false);
 
     // handle a file being selected
-    const pick_file = (file) => {
+    const pick_file = async (file) => {
         // close the picker
         setThumbnailPicker(false);
 
@@ -32,10 +32,18 @@ function Clip(props) {
         data.append('file', file);
 
         // do we have a file? then post the thumbnail
-        context.fetch(`/composition/clips/by-id/${props.id}/thumbnail`, {
-            method: 'POST',
-            body: data,
-        });
+        try {
+            const response = await context.fetch(`/composition/clips/by-id/${props.id}/thumbnail`, {
+                method: 'POST',
+                body: data,
+            });
+
+            if (!response.ok) {
+                console.error('Failed to upload thumbnail:', response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error('Error uploading thumbnail:', error);
+        }
     };
 
     // handle clear action with thumbnail cache busting

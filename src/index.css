@@ -197,14 +197,24 @@ body {
 .clip
 {
     width: 130px;
+    height: 100px;
     margin-right: 10px;
     margin-bottom: 15px;
-    background-color: #191818;    
+    background-color: #191818;
+    display: flex;
+    flex-direction: column;
 }
 
 .connected {
     outline: 4px solid #A1FCD5;
     outline-offset: -4px;
+    flex: 1;
+    display: flex;
+}
+
+.none {
+    flex: 1;
+    display: flex;
 }
 
 .none:hover {
@@ -215,6 +225,7 @@ body {
 .thumbnail {
     width: 100%;
     height: 100%;
+    object-fit: contain;
     background-color: #191818;
 }
 
@@ -275,7 +286,7 @@ body {
 
 /**~~~~~~COLUMNS~~~~~~~**/
 
-.column {
+.clips .column {
     width: 100px;
     height: 25px;
     text-align: center;
@@ -286,18 +297,18 @@ body {
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     box-sizing: border-box;
-    display: none;  /* 隱藏 column 列 */
+    display: none;  /* 隱藏 clips 區域中的 column 列 */
 }
 
 .clips > span {
     display: none;
 }
 
-.column:hover {
-    background-color: #50504f;  
+.clips .column:hover {
+    background-color: #50504f;
 }
 
-.column.connected {
+.clips .column.connected {
     background-color: #80ffd2;
     color: #1b1b1b;
 }
