@@ -8,7 +8,21 @@
       "Bash(set HOST=0.0.0.0)",
       "Bash(timeout /t 10)",
       "Bash(netstat:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(npm install:*)",
+      "Bash(npx cap init:*)",
+      "Bash(npx cap:*)",
+      "Bash(gradlew assembleDebug:*)",
+      "Bash(gradlew.bat assembleDebug:*)",
+      "Bash(.gradlew.bat assembleDebug)",
+      "Bash(./gradlew.bat assembleDebug)",
+      "Bash(java -version:*)",
+      "Bash(where:*)",
+      "Bash(curl:*)",
+      "Bash(./sdkmanager.bat --licenses)",
+      "Bash(export JAVA_HOME=\"/c/Program Files/Eclipse Adoptium/jdk-17.0.17.10-hotspot\")",
+      "Bash(./sdkmanager.bat \"platform-tools\" \"platforms;android-35\" \"build-tools;35.0.0\")",
+      "Bash(yes:*)"
     ],
     "deny": [],
     "ask": []
