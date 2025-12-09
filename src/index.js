@@ -25,3 +25,22 @@ ReactDOM.render(
     </ResolumeProvider>,
     document.getElementById('grid')
 );
+
+// Detect if running in standalone/PWA mode and request fullscreen
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                     window.navigator.standalone ||
+                     document.referrer.includes('android-app://');
+
+if (isStandalone) {
+    // Running as installed PWA
+    document.addEventListener('click', function requestFullscreen() {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        }
+        // Only try once
+        document.removeEventListener('click', requestFullscreen);
+    }, { once: true });
+}

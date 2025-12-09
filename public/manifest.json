@@ -1,29 +1,27 @@
 {
   "short_name": "Resolume",
   "name": "Resolume Arena Control",
+  "description": "Resolume Arena Web Control Interface",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "favicon.ico",
-      "type": "image/x-icon",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
       "sizes": "192x192",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "favicon.ico",
-      "type": "image/x-icon",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "scope": "/",
-  "display": "standalone",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
   "theme_color": "#000000",
   "background_color": "#000000",
-  "orientation": "any"
+  "orientation": "any",
+  "prefer_related_applications": false
 }
