@@ -16,8 +16,8 @@ function get_option(production, development, fallback) {
     }
 }
 
-const host = get_option(window.location.hostname, process.env.REACT_APP_HOST, '192.168.1.105');
-const port = parseInt(get_option(window.location.port, process.env.REACT_APP_PORT, 8080), 10);
+const host = get_option(window.location.hostname, process.env.REACT_APP_HOST, '192.168.1.86');
+const port = parseInt(get_option(window.location.port, process.env.REACT_APP_PORT, 8081), 10);
 
 ReactDOM.render(
     <ResolumeProvider host={host} port={port}>
