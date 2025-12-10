@@ -403,101 +403,107 @@ function Parameter(props) {
     const context       = useContext(ResolumeContext);
     const handle_update = value => context.parameters.update_parameter(props.parameter.id, value);
 
+    // Collect wrapper props
+    const wrapperProps = { className: 'parameter' };
+    if (props.id) wrapperProps.id = props.id;
+
     return (
-        <ParameterMonitor.Single parameter={props.parameter} render={param => {
-            const hidelabel = props.hidelabel || "no";
+        <span {...wrapperProps}>
+            <ParameterMonitor.Single parameter={props.parameter} render={param => {
+                const hidelabel = props.hidelabel || "no";
 
-            if (!param) {
-                return (
-                    <span>Loading</span>
-                )
-            } else if (props.modifier && props.label) {
-                const handle_click = () => {
-                    const updated = props.modifier(param.value);
-                    handle_update(updated);
-                };
+                if (!param) {
+                    return (
+                        <span>Loading</span>
+                    )
+                } else if (props.modifier && props.label) {
+                    const handle_click = () => {
+                        const updated = props.modifier(param.value);
+                        handle_update(updated);
+                    };
 
-                return (
-                    <span>
-                        <button onClick={handle_click}>
-                            {props.label}
-                        </button>
-                    </span>
-                )
-            } else if (param.valuetype === "ParamEvent") {
-                return (
-                    <ParamEvent
-                        parameter={param}
-                        view={props.view}
-                        name={props.name}
-                        readonly={props.readonly}
-                        on_update={(value) => handle_update(value)}
-                    />
-                )
-            } else if (param.valuetype === "ParamBoolean") {
-                return (
-                    <ParamBoolean
-                        parameter={param}
-                        view={props.view}
-                        name={props.name}
-                        readonly={props.readonly}
-                        on_update={(value) => handle_update(value)}
-                    />
-                )
-            } else if (param.valuetype === "ParamRange") {
-                return (
-                    <ParamRange
-                        parameter={param}
-                        view={props.view}
-                        name={props.name}
-                        readonly={props.readonly}
-                        on_update={(value) => handle_update(value)}
-                        view_type={props.view_type}
-                        hidelabel={hidelabel}
-                    />
-                )
-            } else if (param.valuetype === "ParamChoice") {
-                return (
-                    <ParamChoice
-                        parameter={param}
-                        view={props.view}
-                        name={props.name}
-                        readonly={props.readonly}
-                        on_update={(value) => handle_update(value)}
-                    />
-                )
-            } else if (param.valuetype === "ParamColor") {
-                return (
-                    <ParamColor
-                        parameter={param}
-                        view={props.view}
-                        name={props.name}
-                        readonly={props.readonly}
-                        on_update={(value) => handle_update(value)}
-                    />
-                )
-            } else if (param.valuetype === "ParamText") {
-                return (
-                    <ParamText
-                        parameter={param}
-                        view={props.view}
-                        name={props.name}
-                        readonly={props.readonly}
-                        on_update={(value) => handle_update(value)}
-                    />
-                )
-            } else {
-                return (
-                    <ParamString
-                        parameter={param}
-                        view={props.view}
-                        name={props.name}
-                        readonly={props.readonly}
-                        on_update={(value) => handle_update(value)}
-                    />
-                )
-            }
-        }} />
+                    return (
+                        <span>
+                            <button onClick={handle_click}>
+                                {props.label}
+                            </button>
+                        </span>
+                    )
+                } else if (param.valuetype === "ParamEvent") {
+                    return (
+                        <ParamEvent
+                            parameter={param}
+                            view={props.view}
+                            name={props.name}
+                            readonly={props.readonly}
+                            on_update={(value) => handle_update(value)}
+                        />
+                    )
+                } else if (param.valuetype === "ParamBoolean") {
+                    return (
+                        <ParamBoolean
+                            parameter={param}
+                            view={props.view}
+                            name={props.name}
+                            readonly={props.readonly}
+                            on_update={(value) => handle_update(value)}
+                        />
+                    )
+                } else if (param.valuetype === "ParamRange") {
+                    return (
+                        <ParamRange
+                            parameter={param}
+                            view={props.view}
+                            name={props.name}
+                            readonly={props.readonly}
+                            on_update={(value) => handle_update(value)}
+                            view_type={props.view_type}
+                            hidelabel={hidelabel}
+                        />
+                    )
+                } else if (param.valuetype === "ParamChoice") {
+                    return (
+                        <ParamChoice
+                            parameter={param}
+                            view={props.view}
+                            name={props.name}
+                            readonly={props.readonly}
+                            on_update={(value) => handle_update(value)}
+                        />
+                    )
+                } else if (param.valuetype === "ParamColor") {
+                    return (
+                        <ParamColor
+                            parameter={param}
+                            view={props.view}
+                            name={props.name}
+                            readonly={props.readonly}
+                            on_update={(value) => handle_update(value)}
+                        />
+                    )
+                } else if (param.valuetype === "ParamText") {
+                    return (
+                        <ParamText
+                            parameter={param}
+                            view={props.view}
+                            name={props.name}
+                            readonly={props.readonly}
+                            on_update={(value) => handle_update(value)}
+                        />
+                    )
+                } else {
+                    return (
+                        <ParamString
+                            parameter={param}
+                            view={props.view}
+                            name={props.name}
+                            readonly={props.readonly}
+                            on_update={(value) => handle_update(value)}
+                        />
+                    )
+                }
+            }} />
+        </span>
     )
 }
 

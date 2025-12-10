@@ -58,6 +58,7 @@ function Rotary(props) {
     const rotary_style = {
         width: width,
         height: height,
+        '--volume-percent': `${filled * 100}%`,
     };
 
     // our arc spans 216 degrees, so we can rotate the dial from -108deg

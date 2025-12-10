@@ -96,6 +96,17 @@ function Clip(props) {
         setMouseDown(down);
     };
 
+    // Touch event handlers for mobile
+    const handleTouchStart = (e) => {
+        e.preventDefault();
+        connect(true);
+    };
+
+    const handleTouchEnd = (e) => {
+        e.preventDefault();
+        connect(false);
+    };
+
     return (
         <div>
             <div>
@@ -113,6 +124,8 @@ function Clip(props) {
                                     onMouseDown={() => connect(true)}
                                     onMouseUp={() => connect(false)}
                                     onMouseLeave={() => connect(false)}
+                                    onTouchStart={handleTouchStart}
+                                    onTouchEnd={handleTouchEnd}
                                     onDragStart={(event) => event.preventDefault()}
                                     alt={props.name.value}
                                 />

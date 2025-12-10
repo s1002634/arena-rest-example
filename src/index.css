@@ -1,410 +1,680 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --background: hsl(220, 20%, 8%);
+    --foreground: hsl(0, 0%, 95%);
+    --card: hsl(220, 18%, 12%);
+    --card-foreground: hsl(0, 0%, 95%);
+    --primary: hsl(168, 80%, 55%);
+    --primary-foreground: hsl(220, 20%, 8%);
+    --secondary: hsl(220, 15%, 18%);
+    --secondary-foreground: hsl(0, 0%, 90%);
+    --muted: hsl(220, 15%, 15%);
+    --muted-foreground: hsl(220, 10%, 55%);
+    --border: hsl(220, 15%, 20%);
+    --clip-bg: hsl(220, 15%, 15%);
+    --radius: 0.5rem;
+}
+
 body {
-    font: 13px Noto Sans, Arial, sans-serif;
-    color: #f0f0f0;
-    margin-top: 3px;
-    margin-left: 18px;
-    margin-right: 0px;    
-    cursor: default;
-    background-color: #000000;
+    font-family: 'Noto Sans TC', 'JetBrains Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--background);
+    color: var(--foreground);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    height: 100dvh; /* Use dynamic viewport height for mobile/tablet */
 }
 
 /**~~~~~~COMPOSITION~~~~~~~**/
 .composition {
-    padding-top: 12px;
-    
-}
-
-/**~~~~~~CROSSFADER~~~~~~~**/
-
-
-.crossfader {
-    display: none;  /* 隱藏 crossfader 區塊 */
-    width: 33%;
-}
-
-/**~~~~~~LAYERS~~~~~~~**/
-
-.main-layout {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    max-width: 100vw;
-    overflow-x: auto;
-}
-
-.bottom-controls {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-    min-width: 300px;
+    height: 100vh;
+    height: 100dvh; /* Use dynamic viewport height for mobile/tablet */
+    background: var(--background);
+    overflow: hidden;
+}
+
+/**~~~~~~LAYERS CONTAINER~~~~~~~**/
+.layers-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 0.5rem;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+/**~~~~~~LAYER ROW~~~~~~~**/
+.layer-row {
+    display: flex;
+    min-height: 8rem;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: all 0.2s;
     flex-shrink: 0;
 }
 
-.left-controls {
+.layer-row.active {
+    border-color: var(--primary);
+    background: var(--card);
+    box-shadow: 0 0 0 1px var(--primary);
+}
+
+.layer-row:not(.active) {
+    background: rgba(28, 32, 40, 0.6);
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.layer-row:not(.active):hover {
+    background: rgba(28, 32, 40, 0.8);
+}
+
+/**~~~~~~LAYER CONTROL~~~~~~~**/
+.layer-control {
+    width: 5rem;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-}
-
-.volume-controls {
-    display: flex;
-    align-items: center;
-    background-color: #1a1a1a;
-    padding: 8px 15px;
-}
-
-.volume-controls .master-volume {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.volume-controls .volume-label {
-    color: #ffffff;
-    font-size: 16px;
-    white-space: nowrap;
-}
-
-.columns-controls {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
-    background-color: #1a1a1a;
-    padding: 8px 15px;
-    max-width: 100%;
-}
-
-.columns-controls .column {
-    display: flex;
     align-items: center;
     justify-content: center;
-    height: 40px;
-    padding: 5px;
-    background-color: #2A2A2A;
-    border-radius: 3px;
+    gap: 0.5rem;
+    padding: 1rem 0.5rem;
     cursor: pointer;
-    font-size: 14px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    transition: all 0.2s;
 }
 
-.columns-controls .column:hover {
-    background-color: #50504f;
+.layer-row.active .layer-control {
+    background: rgba(72, 219, 194, 0.2);
 }
 
-.columns-controls .column.connected {
-    background-color: #A1FCD5;
-    color: #1b1b1b;
+.layer-row:not(.active) .layer-control {
+    background: rgba(255, 255, 255, 0.05);
 }
 
-.global-controls-section {
+.layer-row:not(.active) .layer-control:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.layer-name {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.layer-row.active .layer-name {
+    color: var(--primary);
+}
+
+.layer-row:not(.active) .layer-name {
+    color: var(--muted-foreground);
+}
+
+.layer-buttons {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
 }
 
-.control-label {
-    color: #ffffff;
-    font-size: 18px;
-    white-space: nowrap;
-    margin-left: 4px;
-}
-
-.global-transport-controls {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
-    width: 200px;
-}
-
-.resync-row {
-    display: flex;
-    align-items: center;
-    padding-left: 4px;
-}
-
-.resync-row .resync-section {
-    width: 65px;
-}
-
-.global-transport-controls .button {
-    font-size: 22px;
-    height: 50px;
+.layer-btn {
+    padding: 0.625rem;
+    border-radius: 0.375rem;
+    transition: all 0.15s;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--muted-foreground);
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: 2.5rem;
 }
 
-/* Transport Control Icons */
-.icon-play {
-    width: 0;
-    height: 0;
-    border-left: 12px solid white;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
+.layer-btn:hover {
+    background: var(--muted);
+    color: var(--foreground);
+    transform: scale(1.05);
+    border-color: var(--primary);
 }
 
-.icon-pause {
-    width: 12px;
-    height: 16px;
-    border-left: 4px solid white;
-    border-right: 4px solid white;
-    box-sizing: border-box;
+.layer-btn:active {
+    transform: scale(0.95);
 }
 
-.icon-stop {
-    width: 14px;
-    height: 14px;
-    background-color: white;
+.layer-btn.playing {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
 }
 
-.button
-{
-    text-align: center;
-    padding-bottom: 5px;
-    margin-right: 2px;
-    margin-bottom: 2px;
-}
-.button
-{
-    background-color: #3a3a3a;
-}
-.button:hover {
-    background-color: #50504f;
-}
-.button:active {
-    background-color: #A1FCD5;
-}
-
-.on
-{
-    background-color: #A1FCD5;
-    color: black;
-}
-
-.on:hover {
-    background-color: #A1FCD5;
-}
-
-.off
-{
-    background-color: #3a3a3a;
-}
-/**~~~~~~CLIPS~~~~~~~**/
-
-.clip
-{
-    width: 130px;
-    height: 100px;
-    margin-right: 10px;
-    margin-bottom: 15px;
-    background-color: #191818;
-    display: flex;
-    flex-direction: column;
-}
-
-.connected {
-    outline: 4px solid #A1FCD5;
-    outline-offset: -4px;
+/**~~~~~~CLIPS GRID~~~~~~~**/
+.clips-grid {
     flex: 1;
+    padding: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.375rem;
+    align-content: center;
+}
+
+.clip-thumbnail {
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.clip-thumbnail:active {
+    transform: scale(0.95);
+    opacity: 0.9;
+}
+
+.clip-thumbnail.connected {
+    outline: 2px solid var(--primary);
+    outline-offset: 0;
+}
+
+.clip-thumbnail.selected .clip-label {
+    background: var(--primary);
+}
+
+.clip-thumbnail.selected .clip-name {
+    color: var(--primary-foreground);
+}
+
+.clip-thumbnail:hover {
+    transform: translateY(-2px);
+}
+
+.clip-preview {
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, var(--muted), var(--secondary));
     display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem 0.375rem 0 0;
+    overflow: hidden;
 }
 
-.none {
-    flex: 1;
-    display: flex;
+.clip-thumbnail:hover .clip-preview {
+    filter: brightness(1.1);
 }
 
-.none:hover {
-    outline: 4px solid #50504f;
-    outline-offset: -4px;
-}
-
-.thumbnail {
+.clip-preview .thumbnail {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background-color: #191818;
 }
 
-.handle {
-    background-color: #3a3a3a;    
-    border-radius: 0 0 2px 2px;
-    height: 20px;
-    padding-top: 4px;
-    text-align: center;    
+.clip-preview .clip-id {
+    font-size: 0.625rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'JetBrains Mono', monospace;
 }
 
-.handle:hover {
-    background-color: #50504f;
-}
-
-.selected {
-    background-color: #A1FCD5;
-    color: #1C1C1C;
-}
-
-.selected:hover {
-    background-color: #A1FCD5;
-}
-
-.composition_layers_and_clips {
-    display: flex;
-    flex: 1;
-    min-width: 0;
-    overflow-x: auto;
-    height: fit-content;
-    align-self: flex-start;
-}
-
-.composition_and_layers {
-    display: grid;
-    margin-right: 5px;    
-}
-
-.composition_and_layers .composition {
-    display: grid;
-    grid-template-columns: 1fr 20px 20px;
-    height: 27px;
-}
-
-.composition_and_layers .composition .button {
-    border-radius: 0 0 4px 4px;
-}
-
-.composition-spacer {
-    display: none;
-}
-
-.clips {
-    display: grid;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-}
-
-/**~~~~~~COLUMNS~~~~~~~**/
-
-.clips .column {
-    width: 100px;
-    height: 25px;
+.clip-label {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.125rem 0.375rem;
     text-align: center;
-    margin-right: 5px;
-    margin-bottom: 0px;
-    padding-top: 5px;
-    background-color: #2A2A2A;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    box-sizing: border-box;
-    display: none;  /* 隱藏 clips 區域中的 column 列 */
+    border-radius: 0 0 0.375rem 0.375rem;
 }
 
-.clips > span {
+.clip-name {
+    font-size: 0.625rem;
+    color: var(--foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/**~~~~~~CONTROL BAR~~~~~~~**/
+.control-bar {
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    flex-shrink: 0;
+}
+
+.control-bar-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.control-section {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+/**~~~~~~CROSSFADER~~~~~~~**/
+.crossfader {
     display: none;
 }
 
-.clips .column:hover {
-    background-color: #50504f;
+
+/**~~~~~~GLOBAL CONTROLS~~~~~~~**/
+.global-label {
+    font-size: 0.625rem;
+    color: var(--muted-foreground);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.clips .column.connected {
-    background-color: #80ffd2;
-    color: #1b1b1b;
+.control-btn {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--secondary);
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/**~~~~~~TEXT BLOCK EDITOR~~~~~~~**/
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
 
+.control-btn:active {
+    transform: scale(0.95);
+}
+
+.control-btn.active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+}
+
+.control-btn svg {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
+/**~~~~~~BUTTONS~~~~~~~**/
+.button {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--secondary);
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    min-width: 2.5rem;
+}
+
+.button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+.button:active {
+    transform: scale(0.95);
+}
+
+.button.on {
+    background: var(--primary);
+    color: var(--primary-foreground);
+}
+
+.button.off {
+    background: var(--secondary);
+}
+
+/**~~~~~~TRANSPORT ICONS~~~~~~~**/
+.icon-play {
+    width: 0;
+    height: 0;
+    border-left: 10px solid currentColor;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+}
+
+.icon-pause {
+    width: 10px;
+    height: 12px;
+    border-left: 3px solid currentColor;
+    border-right: 3px solid currentColor;
+}
+
+.icon-stop {
+    width: 12px;
+    height: 12px;
+    background-color: currentColor;
+}
+
+/**~~~~~~DIVIDER~~~~~~~**/
+.divider {
+    width: 1px;
+    height: 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/**~~~~~~RESYNC BUTTON~~~~~~~**/
+.resync-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    background: var(--secondary);
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.resync-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.resync-btn svg {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
+.resync-text {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Parameter wrapper in control bar */
+.control-bar-inner > .parameter {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+/* RESYNC parameter styling - button element without class */
+.control-bar-inner > .parameter button {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    background: var(--secondary);
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    min-height: auto;
+    min-width: auto;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+
+.control-bar-inner > .parameter button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.control-bar-inner > .parameter button::before {
+    content: '';
+    display: inline-block;
+    width: 0.875rem;
+    height: 0.875rem;
+    background-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" xmlns="http://www.w3.org/2000/svg"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 0.25rem;
+}
+
+/**~~~~~~VOLUME CONTROL~~~~~~~**/
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 7.5rem;
+}
+
+.volume-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: var(--muted-foreground);
+}
+
+.volume-slider {
+    flex: 1;
+    height: 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--muted);
+    position: relative;
+    cursor: pointer;
+}
+
+.volume-fill {
+    height: 100%;
+    border-radius: 0.25rem;
+    background: var(--primary);
+    transition: width 0.1s;
+    position: relative;
+}
+
+.volume-thumb {
+    position: absolute;
+    right: -0.625rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 2px solid var(--background);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s;
+}
+
+.volume-slider:hover .volume-thumb {
+    transform: translateY(-50%) scale(1.15);
+}
+
+.volume-text {
+    font-size: 0.625rem;
+    color: var(--muted-foreground);
+    width: 1.75rem;
+    text-align: right;
+}
+
+/* Volume slider styles are now in volume_slider.css */
+
+/**~~~~~~COLUMN BUTTONS~~~~~~~**/
+.column-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex: 1;
+}
+
+.column-btn {
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.25rem;
+    background: var(--secondary);
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.column-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.column-btn:active,
+.column-btn.active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+}
+
+/**~~~~~~COLUMN CONTROLS (Backward compatibility)~~~~~~~**/
+.columns-controls {
+    display: flex;
+    gap: 0.375rem;
+    flex: 1;
+}
+
+.columns-controls .column {
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.25rem;
+    background: var(--secondary);
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.columns-controls .column:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.columns-controls .column.connected {
+    background: var(--primary);
+    color: var(--primary-foreground);
+}
+
+/**~~~~~~TEXT INPUT~~~~~~~**/
+.text-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.text-input {
+    width: 10rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    font-size: 0.75rem;
+    outline: none;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+.text-input:focus {
+    border-color: var(--primary);
+}
+
+.text-input::placeholder {
+    color: var(--muted-foreground);
+}
+
+.text-action-btn {
+    padding: 0.375rem;
+    border-radius: 0.25rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+}
+
+.send-btn {
+    background: var(--primary);
+    color: var(--primary-foreground);
+}
+
+.send-btn:hover {
+    background: hsl(168, 70%, 45%);
+    transform: scale(1.05);
+}
+
+.send-btn:active {
+    transform: scale(0.95);
+}
+
+.clear-btn {
+    background: var(--secondary);
+    color: var(--foreground);
+}
+
+.clear-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+.clear-btn:active {
+    transform: scale(0.95);
+}
+
+.text-action-btn svg {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
+/**~~~~~~TEXT BLOCK EDITOR (Backward compatibility)~~~~~~~**/
 .text-block-editor {
     display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: stretch;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .text-block-editor .text-input {
-    flex: 1;
-    min-width: 150px;
-    background-color: #e8e8e8;
-    color: #000000;
-    border: 1px solid #999999;
-    border-radius: 3px;
-    padding: 8px;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    resize: none;
-    box-sizing: border-box;
-}
-
-.text-block-editor .text-input:focus {
-    outline: none;
-    border-color: #666666;
+    width: 12rem;
 }
 
 .text-block-editor .text-controls {
     display: flex;
-    flex-direction: column;
-    gap: 5px;
-    justify-content: stretch;
+    gap: 0.25rem;
 }
 
 .text-block-editor .text-controls .button {
-    flex: 1;
-    min-width: 60px;
-    font-size: 14px;
-    padding-top: 4px;
-    margin: 0;
+    min-width: 3rem;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
 }
 
 /**~~~~~~DECKS~~~~~~~**/
-
 .decks {
-    display: none;  /* 隱藏 decks 區塊 */
-    height: 30px;
-    margin-left: 185px;
-}
-
-.decks > div {
-    width: 90px;
-    display: inline-block;
-    margin-right: 5px;
-    padding: 5px;
-    background-color: #2a2a2a;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    text-align: center;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.decks > div:hover {
-    background-color: #50504f;  
-}
-
-.decks > div.selected {
-    background-color: #80ffd2;
-    color: #1b1b1b;    
+    display: none;
 }
 
 /**~~~~~~PROPERTIES~~~~~~~**/
-
 .title {
-    background-color: #4d8c75;
+    background-color: var(--primary);
     margin-top: 5px;
     padding: 5px 10px 7px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-top-left-radius: 0.375rem;
+    border-top-right-radius: 0.375rem;
     height: 17px;
     user-select: none;
+    color: var(--primary-foreground);
 }
 
 .content {
     padding-top: 5px;
     padding-bottom: 5px;
-    background-color: #1a1a1a;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+    background-color: var(--card);
+    border-bottom-left-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
 }
 
 #controls {
@@ -420,33 +690,30 @@ body {
 }
 
 #composition_properties {
-    display: none;  /* 隱藏 composition_properties 區塊 */
+    display: none;
 }
 
 #layer_properties {
-    display: none;  /* 隱藏 layer_properties 區塊 */
+    display: none;
 }
 
 #clip_properties {
-    display: none;  /* 隱藏 clip_properties 區塊 */
+    display: none;
 }
 
 #browser {
-    display: none;  /* 隱藏 browser 區塊 */
+    display: none;
 }
 
 #clip_transport {
-    display: none;  /* 隱藏 clip_transport 區塊 */
+    display: none;
 }
 
-
 /**~~~~~~PARAMETERS~~~~~~~**/
-
-
 .dashboard .parameters {
     margin-top: 0.2em;
     margin-left: 2em;
-    display: grid;    
+    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(40px, 0.125fr));
     align-items: center;
 }
@@ -458,17 +725,19 @@ body {
 span.parameter input {
     border: none;
     background: transparent;
-    color: #f0f0f0;
+    color: var(--foreground);
 }
 
 span.parameter input:focus {
     background-color: white;
+    color: black;
 }
 
 span.label {
     display: inline-block;
     width: 125px;
     margin-left: 15px;
+    font-size: 0.75rem;
 }
 
 .arrow {
@@ -481,7 +750,7 @@ span.label {
 .arrow.down {
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
-    border-top: 5px solid darkgrey;
+    border-top: 5px solid var(--muted-foreground);
     position: relative;
     top: -2px;
     left: -4px;
@@ -490,17 +759,18 @@ span.label {
 .arrow.right {
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
-    border-left: 5px solid darkgrey;
+    border-left: 5px solid var(--muted-foreground);
 }
-
 
 .choice {
     width: 130px;
-    background-color: #474747;
-    border: none;
-    color: #f0f0f0;
+    background-color: var(--secondary);
+    border: 1px solid var(--border);
+    color: var(--foreground);
     margin-left: 10px;
     margin-bottom: 4px;
+    border-radius: 0.25rem;
+    padding: 0.25rem;
 }
 
 input[type="checkbox"] {
@@ -514,43 +784,55 @@ input[type="color"] {
 input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
-    background: #5f5f5f !important;
-    height: 5px;
-    border-radius: 5px;
+    background: var(--muted);
+    height: 0.5rem;
+    border-radius: 0.25rem;
     margin: 10px;
+    cursor: pointer;
 }
 
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    background: #4d8c75 !important;
-    width: 10px;
-    height: 10px;
-    border-radius: 10px;
+    background: var(--primary);
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    border: 2px solid var(--background);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
 }
 
-
+input[type="range"]::-moz-range-thumb {
+    background: var(--primary);
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    border: 2px solid var(--background);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
 
 /**~~~~~~MENU~~~~~~~**/
-
 .option {
-    background-color: #1d1d1d;
-    border: 1px solid black;
+    background-color: var(--card);
+    border: 1px solid var(--border);
     padding: 3px;
     padding-top: 8px;
     padding-left: 12px;
     text-align: left;
-    color: white;    
+    color: var(--foreground);
     height: 20px;
     position: relative;
 }
 
 .context-menu {
-    background-color: #0f0f0f;
+    background-color: var(--background);
     position: absolute;
-    display: inline-block;    
-    box-shadow: 2px 2px 2px #000000;
-    border: 0px solid black;    
+    display: inline-block;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
     width: 250px;
     z-index: 100;
 }
@@ -577,11 +859,11 @@ input[type="range"]::-webkit-slider-thumb {
 .context-menu .option.selected:before {
     content: '✓';
     position: absolute;
-    right: 8px; 
+    right: 8px;
 }
 
 .context-menu .option:hover {
-    background-color: #3a3a3a;
+    background-color: var(--secondary);
 }
 
 .context-menu .sub-menu {
@@ -592,196 +874,325 @@ input[type="range"]::-webkit-slider-thumb {
     width: 250px;
 }
 
-/**~~~~~~TABLET LANDSCAPE RESPONSIVE~~~~~~~**/
-
-/* 平板橫向 (landscape) 適配 */
+/**~~~~~~TABLET RESPONSIVE~~~~~~~**/
 @media screen and (max-width: 1366px) and (orientation: landscape) {
-    body {
-        margin-left: 10px;
-        margin-right: 10px;
-        font-size: 12px;
-    }
-
-    /* 調整 Layer 大小 */
-    .layer {
-        width: 160px !important;
-        height: 120px !important;
-    }
-
-    .layer .handle {
-        height: 40px !important;
-        font-size: 14px;
-    }
-
-    .layer .transport-controls .button {
-        font-size: 18px !important;
-        height: 35px !important;
-    }
-
-    /* 調整 Clip 大小 */
     .clip {
-        width: 110px;
-        margin-right: 8px;
-        margin-bottom: 10px;
+        min-width: 95px;
+        max-width: 110px;
     }
 
-    /* 調整底部控制區 */
-    .bottom-controls {
-        flex-direction: row;
-        gap: 15px;
-        margin-top: 8px;
-        flex-wrap: wrap;
-    }
-
-    .control-label {
-        font-size: 16px;
-    }
-
-    .global-transport-controls {
-        width: 180px;
-    }
-
-    .global-transport-controls .button {
-        font-size: 20px;
-        height: 45px;
-    }
-
-    /* 調整文字編輯器 */
-    .text-block-editor .text-input {
-        min-width: 200px;
-        font-size: 13px;
-    }
-
-    .text-block-editor .text-controls .button {
-        font-size: 13px;
-        min-width: 55px;
-    }
-
-    /* 調整 RESYNC 按鈕 */
-    .resync-section {
-        width: 180px !important;
-    }
-
-    .resync-section button {
-        height: 45px !important;
-        font-size: 15px !important;
-    }
-
-    /* 調整音量滑桿 */
-    .master-volume input[type='range'] {
-        width: 120px !important;
-    }
-
-    /* 調整 columns 按鈕 */
-    .columns-controls .column {
-        height: 38px;
-        font-size: 13px;
-    }
-}
-
-/* 小型平板橫向 (如 iPad Mini) */
-@media screen and (max-width: 1024px) and (orientation: landscape) {
-    body {
-        margin-left: 8px;
-        font-size: 11px;
-    }
-
-    /* 更小的 Layer */
-    .layer {
-        width: 140px !important;
-        height: 100px !important;
-    }
-
-    .layer .handle {
-        height: 35px !important;
-        font-size: 12px;
-    }
-
-    .layer .transport-controls .button {
-        font-size: 16px !important;
-        height: 30px !important;
-    }
-
-    /* 更小的 Clip */
-    .clip {
-        width: 95px;
-        margin-right: 6px;
-        margin-bottom: 8px;
-    }
-
-    /* 緊湊的底部控制區 */
-    .bottom-controls {
-        gap: 10px;
-        margin-top: 5px;
-    }
-
-    .control-label {
-        font-size: 14px;
-    }
-
-    .global-transport-controls {
-        width: 150px;
-    }
-
-    .global-transport-controls .button {
-        font-size: 18px;
-        height: 40px;
-    }
-
-    /* 緊湊的文字編輯器 */
-    .text-block-editor {
-        gap: 8px;
-    }
-
-    .text-block-editor .text-input {
-        min-width: 150px;
-        font-size: 12px;
-        padding: 6px;
-    }
-
-    .text-block-editor .text-controls .button {
-        font-size: 12px;
-        min-width: 50px;
-    }
-
-    /* 緊湊的 RESYNC */
-    .resync-section {
-        width: 150px !important;
-    }
-
-    .resync-section button {
-        height: 40px !important;
-        font-size: 14px !important;
-    }
-
-    /* 縮小音量控制 */
-    .master-volume input[type='range'] {
-        width: 100px !important;
-    }
-
-    .tempo_toolbar {
-        gap: 15px;
-    }
-
-    /* 調整 columns 按鈕 */
-    .columns-controls .column {
-        height: 36px;
-        font-size: 12px;
-    }
-}
-
-/* 觸控優化 - 增加按鈕點擊區域 */
-@media (hover: none) and (pointer: coarse) {
     .button {
+        min-height: 2.25rem;
+        min-width: 2.25rem;
+    }
+
+    .text-block-editor .text-input {
+        width: 10rem;
+        font-size: 0.7rem;
+    }
+}
+
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+    .clip {
+        min-width: 85px;
+        max-width: 95px;
+    }
+
+    .button {
+        min-height: 2rem;
+        min-width: 2rem;
+        padding: 0.375rem;
+    }
+
+    .text-block-editor .text-input {
+        width: 8rem;
+        font-size: 0.65rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/**~~~~~~TOAST NOTIFICATION~~~~~~~**/
+.toast {
+    position: fixed;
+    bottom: 5rem;
+    right: 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    animation: slideIn 0.3s ease-out;
+    z-index: 1000;
+    min-width: 250px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(1rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.toast-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.toast-description {
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+}
+
+/**~~~~~~TOUCH OPTIMIZATION~~~~~~~**/
+
+/* Disable tap highlight on all interactive elements */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+/* Allow text selection only in input fields */
+input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* Improve touch responsiveness */
+button, .control-btn, .column-btn, .layer-btn, .clip-thumbnail, .thumbnail {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Touch device specific optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Ensure all buttons meet minimum touch target */
+    button, .control-btn, .column-btn, .layer-btn {
         min-height: 44px;
         min-width: 44px;
     }
 
-    .layer .transport-controls .button {
-        min-height: 44px !important;
+    /* Clip thumbnails */
+    .clip-thumbnail {
+        min-height: 44px;
+        min-width: 100px;
     }
 
-    .global-transport-controls .button {
-        min-height: 44px !important;
+    .thumbnail {
+        min-height: 44px;
     }
+
+    /* Text input for better mobile usability */
+    .text-input {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    .text-action-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Volume slider larger touch area */
+    .volume-slider {
+        height: 0.75rem;
+    }
+
+    .volume-thumb {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    /* Increase spacing for easier touch */
+    .control-bar-inner {
+        gap: 0.75rem;
+    }
+
+    .layer-buttons {
+        gap: 0.5rem;
+    }
+
+    /* Better visual feedback for touch */
+    .control-btn:active,
+    .column-btn:active,
+    .layer-btn:active,
+    .clip-thumbnail:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Tablet optimizations for control bar */
+@media screen and (max-width: 1366px) and (orientation: landscape) {
+    .control-bar {
+        padding: 0.375rem 0.5rem;
+    }
+
+    .control-bar-inner {
+        gap: 0.5rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .control-btn {
+        padding: 0.375rem;
+        flex-shrink: 0;
+    }
+
+    .column-btn {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.7rem;
+        min-width: 3rem;
+        flex-shrink: 0;
+    }
+
+    .text-input {
+        min-width: 150px;
+        font-size: 0.75rem;
+    }
+
+    .global-label {
+        font-size: 0.55rem;
+    }
+}
+
+/* Smaller tablet / large phone */
+@media screen and (max-width: 1024px) {
+    .control-bar {
+        padding: 0.25rem 0.375rem;
+    }
+
+    .control-bar-inner {
+        gap: 0.375rem;
+    }
+
+    .control-btn {
+        padding: 0.3rem;
+    }
+
+    .column-btn {
+        padding: 0.3rem 0.4rem;
+        font-size: 0.65rem;
+        min-width: 2.5rem;
+    }
+
+    .layer-row {
+        min-height: 7rem;
+    }
+}
+
+/* Portrait tablet / phone */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    .composition {
+        height: 100dvh; /* Use dynamic viewport height on mobile */
+    }
+
+    body {
+        height: 100dvh;
+    }
+
+    .control-bar-inner {
+        flex-wrap: wrap;
+    }
+
+    .columns-controls {
+        width: 100%;
+        display: flex;
+        gap: 0.25rem;
+        overflow-x: auto;
+    }
+}
+
+/* Tablets in Landscape - Galaxy Tab S9 實際寬度 1204px */
+@media screen and (min-width: 1024px) and (orientation: landscape) {
+    .control-bar {
+        padding: 0.375rem 0.5rem 60px; /* Top, Left/Right, Bottom (fixed for Android navigation bar) */
+    }
+
+    .control-bar-inner {
+        gap: 0.5rem;
+    }
+
+    .control-btn {
+        padding: 0.375rem;
+        min-height: 36px;
+        min-width: 36px;
+    }
+
+    .column-btn {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.75rem;
+        min-height: 36px;
+        min-width: 3rem;
+    }
+
+    .text-input {
+        min-height: 36px;
+        font-size: 0.75rem;
+        padding: 0.375rem 0.5rem;
+        width: 8rem;
+    }
+
+    .text-action-btn {
+        min-height: 36px;
+        min-width: 36px;
+        padding: 0.25rem;
+    }
+
+    .global-label {
+        font-size: 0.65rem;
+    }
+
+    .layer-row {
+        min-height: 7rem;
+    }
+}
+
+/* High resolution tablets - Portrait */
+@media screen and (min-width: 1600px) and (max-width: 2560px) and (orientation: portrait) {
+    .composition {
+        height: 100dvh;
+    }
+
+    body {
+        height: 100dvh;
+    }
+
+    .control-bar {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .control-bar-inner {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 0.75rem;
+    }
+
+    .layer-row {
+        min-height: 9rem;
+    }
+}
+
+/* Screen Size Indicator - 懸浮在右上角顯示螢幕尺寸 */
+.screen-size-indicator {
+    position: fixed;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(0, 0, 0, 0.8);
+    color: var(--primary);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    z-index: 9999;
+    pointer-events: none;
+    border: 1px solid var(--primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }

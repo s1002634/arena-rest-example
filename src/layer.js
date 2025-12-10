@@ -1,10 +1,8 @@
 import { ResolumeContext } from './resolume_provider'
-import React, { useContext } from 'react'
+import React, { useContext, memo } from 'react'
 import ParameterMonitor from './parameter_monitor.js'
 import Properties from './properties.js';
 import PropTypes from 'prop-types';
-import ContextMenu from './context_menu.js';
-import Parameter from './parameter';
 import './layer.css';
 
 // we need to draw outside of our container, but instead
@@ -12,28 +10,59 @@ import './layer.css';
 const layer_root = document.getElementById('layer_properties');
 
 /**
+ * Memoized clip thumbnail component to prevent unnecessary re-renders
+ */
+const ClipThumbnail = memo(function ClipThumbnail({ clip }) {
+    const context = useContext(ResolumeContext);
+
+    // connected.index >= 3 表示正在播放
+    const isConnected = clip.connected?.index >= 3;
+    const isSelected = clip.selected?.value;
+
+    const handleConnect = () => {
+        context.action('trigger', `/composition/clips/by-id/${clip.id}/connect`);
+    };
+
+    return (
+        <div
+            key={clip.id}
+            className={`clip-thumbnail ${isConnected ? 'connected' : ''} ${isSelected ? 'selected' : ''}`}
+            onMouseDown={handleConnect}
+            onTouchStart={(e) => { e.preventDefault(); handleConnect(); }}
+        >
+            <div className="clip-preview">
+                {clip.thumbnail ? (
+                    <img src={context.clip_url(clip.id, clip.thumbnail.last_update)} alt={clip.name?.value || ''} className="thumbnail" />
+                ) : (
+                    <span className="clip-id">{clip.name?.value || `Clip ${clip.id}`}</span>
+                )}
+            </div>
+            <div className={`clip-label ${isSelected ? 'selected' : ''}`}>
+                <span className="clip-name">{clip.name?.value || `Clip ${clip.id}`}</span>
+            </div>
+        </div>
+    );
+}, (prevProps, nextProps) => {
+    // Custom comparison function - only re-render if these specific properties change
+    const prevClip = prevProps.clip;
+    const nextClip = nextProps.clip;
+
+    return (
+        prevClip.id === nextClip.id &&
+        prevClip.connected?.index === nextClip.connected?.index &&
+        prevClip.selected?.value === nextClip.selected?.value &&
+        prevClip.thumbnail?.last_update === nextClip.thumbnail?.last_update &&
+        prevClip.name?.value === nextClip.name?.value
+    );
+});
+
+/**
   * Render a layer
   */
 function Layer(props) {
     const context = useContext(ResolumeContext);
 
-    const menu_options = {
-        'New':                      { action: () => context.post('/composition/layers/add')                                             },
-        'Insert Below':             { action: () => context.post('/composition/layers/add', `/composition/layers/by-id/${props.id}`)    },
-        'Duplicate':                { action: () => context.post(`/composition/layers/by-id/${props.id}/duplicate`)                     },
-        'Remove':                   { action: () => context.remove(`/composition/layers/by-id/${props.id}`)                             },
-        'Mask Mode':                { param: props.maskmode                                                                             },
-        'Fader Start':              { param: props.faderstart                                                                           },
-        'Ignore Column Trigger':    { param: props.ignorecolumntrigger                                                                  },
-    };
-
-    const set_bypass                = bypassed  => context.parameters.update_parameter(props.bypassed.id, bypassed);
-    const set_solo                  = solo      => context.parameters.update_parameter(props.solo.id, solo);
-    const toggle_crossfadergroup    = value     => context.parameters.update_parameter(props.crossfadergroup.id, value);
-
-    /* Replace # with ((index+1) of Layer) */
     const select    = () => context.action('trigger', `/composition/layers/by-id/${props.id}/select`);
-    const clear     = () => context.action('trigger', `/composition/layers/by-id/${props.id}/clear`);
     const stop      = () => context.action('trigger', `/composition/layers/by-id/${props.id}/clear`);
 
     // 找到當前 Layer 中正在播放的 Clip（connected）或第一個有 transport 的 Clip
@@ -99,59 +128,43 @@ function Layer(props) {
     return (
         <ParameterMonitor.Single parameter={props.name} render={name => (
             <div>
-                <div>
-                    <ContextMenu
-                        name={name.value.replace(/#/g, props.index+1)}
-                        options={menu_options}
-                    >
-                        <div className="layer">
-                            <div className="controls">
-                                <div className="buttons">
-                                    <ParameterMonitor.Single parameter={props.selected} render={selected => (
-                                        <div className={`handle ${selected.value ? 'selected' : ''}`} onMouseDown={select}>
-                                            {name.value.replace(/#/g, props.index+1)}
-                                        </div>
-                                    )} />
-                                    <div className="transport-controls">
-                                        <div className={`button off`} onMouseDown={play} title="Play">
-                                            <div className="icon-play"></div>
-                                        </div>
-                                        <div className={`button off`} onMouseDown={pause} title="Pause">
-                                            <div className="icon-pause"></div>
-                                        </div>
-                                        <div className={`button off`} onMouseDown={stop} title="Stop">
-                                            <div className="icon-stop"></div>
-                                        </div>
-                                    </div>
-                                    <div className="cbs">
-                                        <div className={`button off`} onMouseDown={clear}>Clear</div>
-                                        <ParameterMonitor.Single parameter={props.bypassed} render={bypassed => (
-                                            <div className={`button ${bypassed.value ? 'on' : 'off'}`} onMouseDown={() => set_bypass(!bypassed.value)}>B</div>
-                                        )} />
-                                        <ParameterMonitor.Single parameter={props.solo} render={solo => (
-                                            <div className={`button ${solo.value ? 'on' : 'off'}`} onMouseDown={() => set_solo(!solo.value)}>S</div>
-                                        )} />
-                                    </div>
-                                    <ParameterMonitor.Single parameter={props.crossfadergroup} render={crossfadergroup => (
-                                        <div className="crossfadergroup">
-                                            <div className={`button ${crossfadergroup.index === 1 ? 'on' : 'off'}`} onMouseDown={() => toggle_crossfadergroup(1)}>A</div>
-                                            <div className={`button ${crossfadergroup.index === 2 ? 'on' : 'off'}`} onMouseDown={() => toggle_crossfadergroup(2)}>B</div>
-                                        </div>
-                                    )} />
+                {/* Layer Row: 水平排列，左側控制 + 右側 clips */}
+                <ParameterMonitor.Single parameter={props.selected} render={selected => (
+                    <div className={`layer-row ${selected.value ? 'active' : ''}`}>
+                        {/* Left Control Area */}
+                        <div className="layer-control" onMouseDown={select} onTouchStart={(e) => { e.preventDefault(); select(); }}>
+                            <div className="layer-name">L{props.index + 1}</div>
+                            <div className="layer-buttons">
+                                <div className="layer-btn"
+                                     onMouseDown={(e) => { e.stopPropagation(); play(); }}
+                                     onTouchStart={(e) => { e.stopPropagation(); e.preventDefault(); play(); }}
+                                     title="Play">
+                                    <div className="icon-play"></div>
                                 </div>
-                                <div className="master">
-                                    <Parameter
-                                        name="Master"
-                                        parameter={props.master}
-                                        hidelabel="yes"
-                                        key={props.master.id}
-                                        id={props.master.id}
-                                    />
+                                <div className="layer-btn"
+                                     onMouseDown={(e) => { e.stopPropagation(); pause(); }}
+                                     onTouchStart={(e) => { e.stopPropagation(); e.preventDefault(); pause(); }}
+                                     title="Pause">
+                                    <div className="icon-pause"></div>
+                                </div>
+                                <div className="layer-btn"
+                                     onMouseDown={(e) => { e.stopPropagation(); stop(); }}
+                                     onTouchStart={(e) => { e.stopPropagation(); e.preventDefault(); stop(); }}
+                                     title="Stop">
+                                    <div className="icon-stop"></div>
                                 </div>
                             </div>
                         </div>
-                    </ContextMenu>
-                </div>
+
+                        {/* Right Clips Grid */}
+                        <div className="clips-grid">
+                            {props.clips && props.clips.map(clip => (
+                                <ClipThumbnail key={clip.id} clip={clip} />
+                            ))}
+                        </div>
+                    </div>
+                )} />
+
                 <ParameterMonitor.Single parameter={props.selected} render={selected => (
                     <React.Fragment>
                         {selected.value &&

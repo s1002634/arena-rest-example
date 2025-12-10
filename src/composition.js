@@ -8,7 +8,10 @@ import Browser from './browser'
 import LayerGroup from './layer_group.js'
 import Properties from './properties.js'
 import Parameter from './parameter.js'
-import React, { useContext, useState, useEffect } from 'react'
+import VolumeSlider from './volume_slider.js'
+import ParameterMonitor from './parameter_monitor.js'
+import React, { useContext, useState, useEffect, useCallback } from 'react'
+import { showToast } from './toast'
 
 // composition effect controls and browser are rendered elseewhere
 const composition_root = document.getElementById('composition_properties');
@@ -21,6 +24,31 @@ function Composition() {
     const context = useContext(ResolumeContext);
     const [textBlockContent, setTextBlockContent] = useState('');
     const [hasSourceParams, setHasSourceParams] = useState(false);
+    const [activeColumnIndex, setActiveColumnIndex] = useState(null);
+    const [screenSize, setScreenSize] = useState({
+        width: window.innerWidth,
+        height: window.innerHeight,
+        navBarHeight: window.innerHeight - window.visualViewport?.height || 0
+    });
+
+    // 監聽螢幕尺寸變化
+    useEffect(() => {
+        const handleResize = () => {
+            setScreenSize({
+                width: window.innerWidth,
+                height: window.innerHeight,
+                navBarHeight: window.innerHeight - (window.visualViewport?.height || window.innerHeight)
+            });
+        };
+
+        window.addEventListener('resize', handleResize);
+        window.visualViewport?.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            window.visualViewport?.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
     // 找到選中的 clip 和它的 text 參數（用於更新 UI）
     const getSelectedClipTextParam = (updateState = true) => {
@@ -82,6 +110,14 @@ function Composition() {
         />
     );
 
+    // Memoize the onActivate callback to prevent re-renders
+    const handleColumnActivate = useCallback((index) => {
+        // Defer state update to not block UI
+        requestAnimationFrame(() => {
+            setActiveColumnIndex(index);
+        });
+    }, []);
+
     // 限制前三個 layer 的 columns (用於控制區)
     const columnsLimitedToThreeLayers = context.composition.columns.map((column, index) =>
         <Column
@@ -91,6 +127,8 @@ function Composition() {
             name={column.name}
             connected={column.connected}
             limitToFirstThreeLayers={true}
+            isActive={activeColumnIndex === index}
+            onActivate={handleColumnActivate}
         />
     );
 
@@ -280,6 +318,7 @@ function Composition() {
                 }
             }
         });
+        showToast('全域播放', '所有圖層已開始播放');
     };
 
     const pauseAll = () => {
@@ -296,12 +335,14 @@ function Composition() {
                 }
             }
         });
+        showToast('全域暫停', '已暫停');
     };
 
     const stopAll = () => {
         context.composition.layers.forEach(layer => {
             context.action('trigger', `/composition/layers/by-id/${layer.id}/clear`);
         });
+        showToast('全域停止', '所有圖層已停止');
     };
 
     // 文字區塊處理函數
@@ -311,7 +352,7 @@ function Composition() {
 
         if (!selectedClipData) {
             console.warn('No text block clip selected or no text parameter found');
-            alert('請先選擇一個包含 text 參數的 clip');
+            showToast('錯誤', '請先選擇一個包含 text 參數的 clip');
             return;
         }
 
@@ -319,6 +360,7 @@ function Composition() {
             // 使用參數 ID 直接更新
             console.log('Updating text parameter:', selectedClipData.textParam.id, 'with:', textBlockContent);
             context.parameters.update_parameter(selectedClipData.textParam.id, textBlockContent);
+            showToast('已送出文字', textBlockContent);
         }
     };
 
@@ -331,88 +373,113 @@ function Composition() {
             console.log('Clearing text parameter:', selectedClipData.textParam.id);
             context.parameters.update_parameter(selectedClipData.textParam.id, '');
         }
+        showToast('已清除', '文字輸入已清空');
     };
 
     return (
         <React.Fragment>
-            <div className="composition">
-                <div className="main-layout">
-                    <div className="composition_layers_and_clips">
-                        <div className="composition_and_layers">
-                            <div className="composition-spacer"></div>
+            {/* Screen Size Indicator */}
+            <div className="screen-size-indicator">
+                <div>{screenSize.width} × {screenSize.height}</div>
+                <div style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: '0.25rem' }}>
+                    導覽列: {screenSize.navBarHeight}px
+                </div>
+            </div>
 
-                            {layers_and_groups}
-                        </div>
-                        <div className="clips" style={s}>
-                            {columns}
-                            {clips}
-                        </div>
-                    </div>
-                    <div className="bottom-controls">
-                        <div className="left-controls">
-                            <div className="global-controls-section">
-                                <div className="control-label">整體控制</div>
-                                <div className="global-transport-controls">
-                                    <div className="button off" onMouseDown={playAll} title="Play All">
-                                        <div className="icon-play"></div>
-                                    </div>
-                                    <div className="button off" onMouseDown={pauseAll} title="Pause All">
-                                        <div className="icon-pause"></div>
-                                    </div>
-                                    <div className="button off" onMouseDown={stopAll} title="Stop All">
-                                        <div className="icon-stop"></div>
-                                    </div>
-                                </div>
+            <div className="composition">
+                {/* Layers Container - 垂直堆疊的 layers */}
+                <div className="layers-container">
+                    {layers_and_groups}
+                </div>
+
+                {/* Bottom Control Bar */}
+                <div className="control-bar">
+                    <div className="control-bar-inner">
+                        {/* Global Controls */}
+                        <div className="control-section">
+                            <span className="global-label">Global</span>
+                            <div className="control-btn"
+                                 onMouseDown={playAll}
+                                 onTouchStart={(e) => { e.preventDefault(); playAll(); }}
+                                 title="Play All">
+                                <div className="icon-play"></div>
                             </div>
-                            {context.composition.tempocontroller.tempo && (
-                                <div className="resync-row">
-                                    <div className="resync-section">
-                                        <Parameter
-                                            name="RESYNC"
-                                            parameter={context.composition.tempocontroller.resync}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-                            {context.composition.audio && context.composition.audio.volume && (
-                                <div className="volume-controls">
-                                    <div className="master-volume">
-                                        <span className="volume-label">音量</span>
-                                        <Parameter
-                                            name="Master Volume"
-                                            parameter={context.composition.audio.volume}
-                                            hidelabel="yes"
-                                            key={context.composition.audio.volume.id}
-                                            id={context.composition.audio.volume.id}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-                            <div className="columns-controls">
-                                {columnsLimitedToThreeLayers}
+                            <div className="control-btn"
+                                 onMouseDown={pauseAll}
+                                 onTouchStart={(e) => { e.preventDefault(); pauseAll(); }}
+                                 title="Pause All">
+                                <div className="icon-pause"></div>
                             </div>
-                            {hasSourceParams && (
-                                <div className="text-block-editor">
-                                    <textarea
-                                        className="text-input"
-                                        value={textBlockContent}
-                                        onChange={(e) => setTextBlockContent(e.target.value)}
-                                        placeholder="輸入文字..."
-                                        rows={3}
-                                    />
-                                    <div className="text-controls">
-                                        <div className="button off" onClick={handleTextClear}>清除</div>
-                                        <div className="button off" onClick={handleTextSubmit}>送出</div>
-                                    </div>
-                                </div>
-                            )}
+                            <div className="control-btn"
+                                 onMouseDown={stopAll}
+                                 onTouchStart={(e) => { e.preventDefault(); stopAll(); }}
+                                 title="Stop All">
+                                <div className="icon-stop"></div>
+                            </div>
                         </div>
+
+                        <div className="divider"></div>
+
+                        {/* Resync Button */}
+                        {context.composition.tempocontroller.tempo && (
+                            <>
+                                <Parameter
+                                    name="RESYNC"
+                                    parameter={context.composition.tempocontroller.resync}
+                                />
+                                <div className="divider"></div>
+                            </>
+                        )}
+
+                        {/* Volume Control */}
+                        {context.composition.audio && context.composition.audio.volume && (
+                            <>
+                                <ParameterMonitor.Single
+                                    parameter={context.composition.audio.volume}
+                                    render={volumeParam => (
+                                        <VolumeSlider
+                                            value={volumeParam.value}
+                                            min={volumeParam.min}
+                                            max={volumeParam.max}
+                                            onChange={(value) => context.parameters.update_parameter(volumeParam.id, value)}
+                                        />
+                                    )}
+                                />
+                                <div className="divider"></div>
+                            </>
+                        )}
+
+                        {/* Column Buttons */}
+                        <div className="columns-controls">
+                            {columnsLimitedToThreeLayers}
+                        </div>
+
+                        {/* Text Input */}
+                        {hasSourceParams && (
+                            <div className="text-input-wrapper">
+                                <input
+                                    type="text"
+                                    className="text-input"
+                                    value={textBlockContent}
+                                    onChange={(e) => setTextBlockContent(e.target.value)}
+                                    placeholder="輸入文字..."
+                                />
+                                <button className="text-action-btn clear-btn" onClick={handleTextClear} title="清除">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                                <button className="text-action-btn send-btn" onClick={handleTextSubmit} title="送出">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
-                <div className="decks">
-                    {decks}
-                </div>
-                {crossfader}
             </div>
             <Properties
                 name="Composition"

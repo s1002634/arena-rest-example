@@ -1,127 +1,93 @@
-.layer
-{
-    height: 150px;
-    width: 200px;
-    margin-bottom: 5px;
+/* Layer.css - 配合新的 horizontal layer-row 設計 */
+
+/* Layer Row - 水平排列 */
+.layer-row {
+    /* 基本樣式在 index.css 中定義 */
 }
 
-.layer .controls { 
-    display: grid;
-    grid-template-columns: 1fr 0.1fr; 
-    margin-right: 2px;
+/* Layer Control Area - 左側 5rem 控制區 */
+.layer-control {
+    /* 基本樣式在 index.css 中定義 */
 }
 
-.layer .buttons {
-    display: grid;
-    grid-template-rows: 1fr auto 2.25fr 1fr;
+.layer-name {
+    /* 基本樣式在 index.css 中定義 */
 }
 
-.layer .transport-controls {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-    width: 100%;
-    margin-bottom: 2px;
-    margin-top: 5px;
+.layer-buttons {
+    /* 基本樣式在 index.css 中定義 */
 }
 
-.layer .transport-controls .button {
-    font-size: 22px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.layer-btn {
+    /* 基本樣式在 index.css 中定義 */
 }
 
-.layer .cbs {
-    display: none;  /* 隱藏 Clear, B, S 按鈕 */
-    grid-template-columns: repeat(3, 1fr);
-    width: 100%;
-    height: 100%;
+/* Clips Grid - 右側 6 欄位 grid */
+.clips-grid {
+    /* 基本樣式在 index.css 中定義 */
 }
 
-.layer .master {
-    transform: rotate(-90deg);
-    transform-origin: 55px 60px;
-    height: 100px;
-    width: 25px;
-    display: none;
+.clip-thumbnail {
+    /* 基本樣式在 index.css 中定義 */
 }
 
-.layer .master input[type='range'] {
-    height: 20px;
-    width: 105px;
-
-    /* this is necessary for chrome, which likes to put
-     * weird borders around input elements, which then
-     * overlaps other controls, blocking clicks.
-     */
-    margin: 0px;
-    position: relative;
-    top: 10px;
-    left: 10px;
+.clip-preview {
+    /* 基本樣式在 index.css 中定義 */
 }
 
-/* Firefox-specific range styling */
-.layer .master input[type='range']::-moz-range-progress {
-    height: 100%;
-    width: 100%;
-    background-color: #252525;
+.clip-label {
+    /* 基本樣式在 index.css 中定義 */
 }
 
-.layer .master input[type='range']::-moz-range-track {
-    height: 100%;
-    width: 100%;
-    background-color: #191817;
+/* 響應式設計 - Tablet */
+@media screen and (max-width: 1366px) and (orientation: landscape) {
+    .layer-control {
+        width: 4.5rem;
+    }
+
+    .layer-name {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .layer-btn {
+        min-height: 2rem;
+        padding: 0.4rem;
+    }
+
+    .clips-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
 }
 
-.layer .master input[type='range']::-moz-range-thumb {
-    appearance: none;
-    height: 20px;
-    width: 20px;
-    background-color: #3a3a3a;
-    border-color: #3a3a3a;
-    border-radius: 3px;
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+    .layer-control {
+        width: 4rem;
+    }
+
+    .layer-name {
+        font-size: 0.65rem;
+        padding: 0.15rem 0.3rem;
+    }
+
+    .layer-btn {
+        min-height: 1.75rem;
+        padding: 0.3rem;
+    }
+
+    .clips-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.375rem;
+    }
 }
 
-.layer .master:hover input[type='range']::-moz-range-thumb {
-    background-color: #50504f;
-    border-color: #50504f;
-}
+/* Touch optimization */
+@media (hover: none) and (pointer: coarse) {
+    .layer-btn {
+        min-height: 44px;
+    }
 
-/* Webkit-specific range styling */
-.layer .master input[type='range']::-webkit-slider-runnable-track {
-    height: 100%;
-    width: 100%;
-    background-color: #191817;
+    .clip-thumbnail {
+        min-height: 44px;
+    }
 }
-
-.layer .master input[type='range']::-webkit-slider-thumb {
-    position: relative;
-    height: 20px;
-    width: 20px;
-    appearance: none;
-    background-color: #3a3a3a;
-    border: 10px solid #3a3a3a;
-    border-radius: 3px;
-}
-
-.layer .master:hover input[type='range']::-webkit-slider-thumb {
-    background-color: #50504f;
-    border-color: #50504f;
-}
-
-.layer .crossfadergroup {
-    display: none;  /* 隱藏 A, B 按鈕 */
-    grid-template-columns: repeat(2, 1fr);
-}
-
-.layer .handle {
-    margin-right: 2px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-bottom: 5px;
-}
-
