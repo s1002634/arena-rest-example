@@ -1,7 +1,7 @@
 import { ResolumeContext } from './resolume_provider'
-import CrossFader from './crossfader.js'
+// import CrossFader from './crossfader.js'
 import Column from './column.js'
-import Deck from './deck.js'
+// import Deck from './deck.js'
 import Layer from './layer.js'
 import Clip from './clip.js'
 import Browser from './browser'
@@ -100,15 +100,15 @@ function Composition() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [context.composition.layers]);
 
-    const columns = context.composition.columns.map((column, index) =>
-        <Column
-            id={column.id}
-            key={column.id}
-            index={index}
-            name={column.name}
-            connected={column.connected}
-        />
-    );
+    // const columns = context.composition.columns.map((column, index) =>
+    //     <Column
+    //         id={column.id}
+    //         key={column.id}
+    //         index={index}
+    //         name={column.name}
+    //         connected={column.connected}
+    //     />
+    // );
 
     // Memoize the onActivate callback to prevent re-renders
     const handleColumnActivate = useCallback((index) => {
@@ -132,7 +132,7 @@ function Composition() {
         />
     );
 
-    const { clips, layers_and_groups } = (() => {
+    const { layers_and_groups } = (() => {
         // first get an iterator on both the layers and groups
         const layer_iter = context.composition.layers[Symbol.iterator]();
         const group_iter = context.composition.layergroups[Symbol.iterator]();
@@ -267,40 +267,38 @@ function Composition() {
 
         // reverse and flatten clips
         clip_rows.reverse();
-        const clips = Array.prototype.concat.apply([], clip_rows);
-
         // reverse layers
         layers_and_groups.reverse();
 
-        return { clips, layers_and_groups };
+        return { layers_and_groups };
     })();
 
-    const decks = context.composition.decks.map((deck) =>
-        <Deck
-            id={deck.id}
-            key={deck.id}
-            name={deck.name}
-            selected={deck.selected.value}
-        />
-    );
+    // const decks = context.composition.decks.map((deck) =>
+    //     <Deck
+    //         id={deck.id}
+    //         key={deck.id}
+    //         name={deck.name}
+    //         selected={deck.selected.value}
+    //     />
+    // );
 
     //min is 100 + 5 margin
-    const s = {
-        gridTemplateColumns: `repeat( ${columns.length}, minmax(105px, 1fr)`
-    }
+    // const s = {
+    //     gridTemplateColumns: `repeat( ${columns.length}, minmax(105px, 1fr)`
+    // }
 
-    let crossfader = null;
-    if (context.composition.crossfader.id) {
-        crossfader = (
-            <CrossFader
-                key={context.composition.crossfader.id}
-                phase={context.composition.crossfader.phase}
-                behaviour={context.composition.crossfader.behaviour}
-                curve={context.composition.crossfader.curve}
-                mixer={context.composition.crossfader.mixer}
-            />
-        );
-    };
+    // let crossfader = null;
+    // if (context.composition.crossfader.id) {
+    //     crossfader = (
+    //         <CrossFader
+    //             key={context.composition.crossfader.id}
+    //             phase={context.composition.crossfader.phase}
+    //             behaviour={context.composition.crossfader.behaviour}
+    //             curve={context.composition.crossfader.curve}
+    //             mixer={context.composition.crossfader.mixer}
+    //         />
+    //     );
+    // };
 
 
     // 整體控制所有 layers 的 play/pause/stop
